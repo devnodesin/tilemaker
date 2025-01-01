@@ -3,9 +3,18 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 import os
 import math
+import argparse
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Generate PDF product catalog from images')
+    parser.add_argument('--img', 
+                       default="./images/mcl/parking",
+                       help='Directory containing product images')
+    return parser.parse_args()
 
 # Paths and configuration
-image_dir = "./images/mcl/parking"
+args = parse_args()
+image_dir = args.img
 output_pdf = "out/product_catalog.pdf"
 images_per_page = 9
 images_per_row = 3
@@ -15,7 +24,7 @@ margin = 50
 spacing = 10
 
 # Header configuration
-header_text = "Deltaware.in - Wholesale Supplier - Parking Tiles Catalog"
+header_text = "Deltaware.in - Parking Tiles Catalog - Whatsapp: 9940198130"
 header_font_size = 14
 header_margin = 100
 
