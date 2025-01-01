@@ -1,0 +1,35 @@
+{
+  "image_path": "./images/mcl/parking",
+  "output_pdf": "out/parking-tiles.pdf",
+  "title": "Deltaware.in - Parking Tiles Catalog - Whatsapp: 9940198130",
+  "pages": [
+    [
+      { "title": "204 BOX SAND", "file": "14204.jpg" },
+      { "title": "202 BOX COPPER", "file": "14202.jpg" },
+      { "title": "203 BOX STONE", "file": "14203.jpg" },
+      { "title": "402 DNA COPPER", "file": "14402.jpg" },
+      { "title": "403 DNA BLUE", "file": "14403.jpg" },
+      { "title": "400 DNA BLACK", "file": "14400.jpg" },
+      { "title": "502 FLOWER COPPER", "file": "14502.jpg" },
+      { "title": "504 FLOWER BLUE", "file": "14504.jpg" },
+      { "title": "503 FLOWER GREEN", "file": "14503.jpg" },
+      { "title": "602 CIRCLE COPPER", "file": "14602.jpg" },
+      { "title": "603 CIRCLE BLUE", "file": "14603.jpg" },
+      { "title": "601 CIRCLE STONE", "file": "14601.jpg" }
+    ],
+    [
+      { "title": "301 BAR GREY", "file": "14301.jpg" },
+      { "title": "300 BAR BEIGE", "file": "14300.jpg" },
+      { "title": "003 STRIPE DARK", "file": "14003.jpg" },
+      { "title": "001 STRIPE LIGHT", "file": "14001.jpg" },
+      { "title": "000 STRIPE L.BLUE", "file": "14000.jpg" },
+      { "title": "002 STRIPE L.BEIGE", "file": "14002.jpg" },
+      { "title": "106 PLAIN STONE", "file": "14106.jpg" },
+      { "title": "107 PLAIN BROWN", "file": "14107.jpg" },
+      { "title": "101 PLAIN FLOWER", "file": "14101.jpg" },
+      { "title": "102 PLAIN BLUE", "file": "14102.jpg" },
+      { "title": "103 PLAIN L.BLUE", "file": "14103.jpg" },
+      { "title": "104 PLAIN BROWN", "file": "14104.jpg" }
+    ]
+  ]
+}
