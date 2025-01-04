@@ -1,0 +1,28 @@
+{
+  "image_path": "./images/mcl/floor24",
+  "output_pdf": "out/2x2-mat-tiles.pdf",
+  "title": "Deltaware.in - 2x2 GVT (MATTE) Tiles Catalog - Whatsapp: 9940198130",
+  "pages": [
+    [
+      { "title": "5212 STONE DARK", "file": "5212.jpg" },
+      { "title": "4128 STONE BLACK", "file": "4128.jpg" },      
+      { "title": "4155 STONE COPPER", "file": "4155.jpg" },
+      { "title": "4164 STONE RUST", "file": "4164.jpg" },
+      { "title": "4665 DRAGON ASH", "file": "4655.jpg" },
+      { "title": "4191 CINA BEIGE", "file": "4191.jpg" },
+      { "title": "4173 CINA GREY", "file": "4173.jpg" },
+      { "title": "4785 PLAIN GREY", "file": "4785.jpg" },
+      { "title": "4512 PLIAN IVORY", "file": "4512.jpg" },
+      { "title": "4507 SNOW WHITE", "file": "4507.jpg" },
+      { "title": "4348 WHITE MARBLE", "file": "4348.jpg" },
+      { "title": "4627 WOOD BRICKS", "file": "4627.jpg" }
+    ],
+    [
+      { "title": "4533 WOOD DARK", "file": "4533.jpg" },
+      { "title": "5334 WOOD TEAK", "file": "5334.jpg" },
+      { "title": "4524 WOOD BEIGE", "file": "4524.jpg" },
+      { "title": "4074 WOOD LIGHT", "file": "4074.jpg" },
+      { "title": "4506 WOOD STRIPE", "file": "4506.jpg" }
+    ]
+  ]
+}

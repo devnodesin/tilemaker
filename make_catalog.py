@@ -28,12 +28,21 @@ def load_config(config_path: str) -> dict:
     with open(config_path, 'r') as f:
         return json.load(f)
 
-def process_image(img_path: str, width: float, height: float) -> str:
+def process_image(img_path: str, width: float, height: float) -> str | None:
     temp_path = os.path.join(os.environ["TEMP"], f"temp_{os.path.basename(img_path)}")
-    img = Image.open(img_path)
-    img.thumbnail((width, height))
-    img.save(temp_path)
-    return temp_path
+    try:
+        img = Image.open(img_path)
+        img.thumbnail((width, height))
+        if img.mode == 'RGBA':
+            img = img.convert('RGB')
+        img.save(temp_path)
+        return temp_path
+    except FileNotFoundError:
+        print(f"Error: Image file not found: {img_path}")
+        return None
+    except Exception as e:
+        print(f"Error processing image {img_path}: {str(e)}")
+        return None
 
 def draw_header(c, layout: LayoutConfig, title: str, page_num: int, total_pages: int):
     c.setFont("Helvetica-Bold", layout.header_font_size)

@@ -1,0 +1,41 @@
+{
+  "image_path": "./images/mcl/floor24",
+  "output_pdf": "out/2x2-tiles.pdf",
+  "title": "Deltaware.in - 2x2 PGVT Tiles Catalog - Whatsapp: 9940198130",
+  "pages": [
+    [
+      { "title": "4254 SLATE DARK", "file": "4254.jpg" },
+      { "title": "4407 SLATE BLACK", "file": "4407.jpg" },
+      { "title": "4353 SLATE BLUE", "file": "4353.jpg" },
+      { "title": "4551 SLATE GREY", "file": "4551.jpg" },
+      { "title": "7160 STONE", "file": "7160.jpg" },
+      { "title": "4654 DRAGON ASH", "file": "4654.jpg" },
+      { "title": "4388 STREAM L.BLUE", "file": "4388.jpg" },
+      { "title": "4385 STEAM BEIGE", "file": "4385.jpg" },
+      { "title": "4387 STREAM GREY", "file": "4387.jpg" },
+      { "title": "4393 AMAZON BLUE", "file": "4393.jpg" },
+      { "title": "4395 AMAZON L.BLUE", "file": "4395.jpg" },
+      { "title": "4653 AMAZON BLUE BEIGE", "file": "4653.jpg" }
+    ],
+    [
+      { "title": "4396 AMAZON BROWN", "file": "4396.jpg" },
+      { "title": "4398 AMAZON BEIGE", "file": "4398.jpg" },
+      { "title": "BROWN 4380", "file": "4380.jpg" },
+      { "title": "4389 GALAXY BLUE", "file": "4389.jpg" },
+      { "title": "4391 GALAXY L.BLUE", "file": "4391.jpg" },
+      { "title": "4434 GALAXY BEIGE", "file": "4434.jpg" },
+      { "title": "1055 SNOW WHITE", "file": "1055.jpg" },
+      { "title": "4317 SNOW GREY", "file": "4317.jpg" },
+      { "title": "5080 SNOW DARK", "file": "5080.jpg" },
+      { "title": "4209 SNOW BEIGE", "file": "4209.jpg" },
+      { "title": "4056 PLAIN GREY", "file": "4056.jpg" }
+    ],
+    [
+      { "title": "4348 WHITE MARBLE", "file": "4348.jpg" },
+      { "title": "5001 WHITE ONE", "file": "5001.jpg" },
+      { "title": "4290 WHITE GREY", "file": "4290.jpg" },
+      { "title": "4354 WOOD", "file": "4354.jpg" },
+      { "title": "4631 WOOD FLOWER", "file": "4631.jpg" }
+    ]
+  ]
+}

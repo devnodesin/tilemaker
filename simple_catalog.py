@@ -63,27 +63,36 @@ for page_num in range(total_pages):
     c.drawString(page_width/2, margin/2, f"Page {page_num + 1} of {total_pages}")
 
     for j, image_file in enumerate(page_images):
-        # Calculate position with increased row spacing
-        col = j % images_per_row
-        row = j // images_per_row
-        x = margin + col * (image_width + spacing)
-        y = page_height - header_margin - (row * (image_height + row_spacing))
+        try:
+            # Calculate position with increased row spacing
+            col = j % images_per_row
+            row = j // images_per_row
+            x = margin + col * (image_width + spacing)
+            y = page_height - header_margin - (row * (image_height + row_spacing))
 
-        # Draw image
-        img_path = os.path.join(image_dir, image_file)
-        img = Image.open(img_path)
-        img.thumbnail((image_width, image_height))
-        
-        temp_file = os.path.join(os.environ["TEMP"], f"resized_{start_idx + j}.jpg") if os.name == 'nt' else os.path.join("/tmp", f"resized_{start_idx + j}.jpg")
-        img.save(temp_file)
-        temp_files.append(temp_file)
+            # Draw image
+            img_path = os.path.join(image_dir, image_file)
+            img = Image.open(img_path)
+            img.thumbnail((image_width, image_height))
+            
+            # Convert RGBA to RGB if needed
+            if img.mode == 'RGBA':
+                img = img.convert('RGB')
+            
+            temp_file = os.path.join(os.environ["TEMP"], f"resized_{start_idx + j}.jpg") if os.name == 'nt' else os.path.join("/tmp", f"resized_{start_idx + j}.jpg")
+            img.save(temp_file)
+            temp_files.append(temp_file)
 
-        c.drawImage(temp_file, x, y - image_height, image_width, image_height)
+            c.drawImage(temp_file, x, y - image_height, image_width, image_height)
 
-        # Add product name
-        product_name = os.path.splitext(image_file)[0]
-        c.setFont("Helvetica-Bold", font_size)
-        c.drawString(x, y - image_height - 15, product_name)
+            # Add product name
+            product_name = os.path.splitext(image_file)[0]
+            c.setFont("Helvetica-Bold", font_size)
+            c.drawString(x, y - image_height - 15, product_name)
+            
+        except Exception as e:
+            print(f"Error processing image {image_file}: {str(e)}")
+            continue
 
     c.showPage()
 
