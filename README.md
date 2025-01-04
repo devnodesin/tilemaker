@@ -13,13 +13,12 @@ A Python script that generates a PDF catalog from a directory of product images 
 Install required packages using pip:
 
 ```bash
-$ pip install Pillow reportlab
+pip install Pillow reportlab
 ```
 
 ## Usage
 
 `simple_catalog.py` generates a PDF catalog from a directory of images. It automatically arranges images in a grid layout, adds page numbers, and creates a clean professional output. Images are resized and optimized for consistent display.
-
 
 ```bash
 $ py simple_catalog.py --img ./images/mcl/parking/
@@ -36,4 +35,12 @@ Product catalog created: out/product_catalog.pdf
 ```bash
 $ py  make_catalog.py --config catalog/parking-tiles.json
 Catalog generated: out/parking-tiles.pdf
+```
+
+```bash
+py visualize_floor.py --rows 20 --cols 20 --title "kitchen" --in_file ".\images\mcl\parking\14400.jpg" --rotate --padding=2
+```
+
+```bash
+py .\visualize_floor.py --json .\catalog\visualize-parking.json
 ```
