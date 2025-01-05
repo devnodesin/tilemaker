@@ -5,6 +5,8 @@ import argparse
 import os
 import json
 
+IMAGE_OUTPUT_PATH = './out/visual/'
+
 def parse_args():
     parser = argparse.ArgumentParser(description='Generate floor tile visualization')
     # Add all arguments first
@@ -32,14 +34,7 @@ def apply_perspective(in_file: str, image: Image.Image, depth_factor: float = 2.
     try:
         # Validate depth_factor
         depth_factor = max(1.0, min(3.0, depth_factor))
-        
-        # Get output filename
-        if in_file:
-            base_name = os.path.splitext(os.path.basename(in_file))[0]
-            out_dir = './out/visual'
-            os.makedirs(out_dir, exist_ok=True)
-            prep_path = os.path.join(out_dir, f"{base_name}_prep.jpg")
-        
+                
         # Convert PIL to OpenCV format
         img_cv = np.array(image)
         
@@ -109,8 +104,9 @@ def apply_perspective(in_file: str, image: Image.Image, depth_factor: float = 2.
                 
         # Save if filename provided
         if saveFile:
-            result.save(prep_path)
-            print(f"Saving {prep_path}")
+            out_file = f'{IMAGE_OUTPUT_PATH}{os.path.splitext(os.path.basename(in_file))[0]}_prep.jpg'
+            result.save(out_file)
+            print(f"Saving {out_file}")
             
         return result
         
@@ -173,8 +169,7 @@ def generate_floor(rows: int, cols: int, in_file: str, title: str,
         if saveFile:
             # Determine output path
             if not out_file:
-                os.makedirs('./out/visual', exist_ok=True)
-                out_file = f'./out/visual/{os.path.splitext(os.path.basename(in_file))[0]}_top.jpg'
+                out_file = f'{IMAGE_OUTPUT_PATH}{os.path.splitext(os.path.basename(in_file))[0]}_top.jpg'
             print(f"Saving {out_file}")
             floor.save(out_file)
         return floor
@@ -233,8 +228,7 @@ def append_thumbnail(title: str, in_file: str, image: Image.Image, saveFile: boo
         
         # Save if requested
         if saveFile:
-            os.makedirs('./out/visual', exist_ok=True)
-            out_file = f'./out/visual/{os.path.splitext(os.path.basename(in_file))[0]}_thumb.jpg'
+            out_file = f'{IMAGE_OUTPUT_PATH}{os.path.splitext(os.path.basename(in_file))[0]}.jpg'
             final.save(out_file)
             print(f"Saved with thumbnail: {out_file}")
             
@@ -259,16 +253,14 @@ def json_process(json_path: str):
         image_path = config['image_path']
         rows = config['rows']
         cols = config['cols']
+
+        os.makedirs(IMAGE_OUTPUT_PATH, exist_ok=True)
         
         # Process each page
         for page in config['pages']:
             # Build input file path
             in_file = os.path.join(image_path, page['file'])
-            
-            # Generate output file path
-            out_dir = './out/visual'
-            os.makedirs(out_dir, exist_ok=True)
-            
+                       
             # Generate floor pattern
             floor = generate_floor(
                 rows=rows,
