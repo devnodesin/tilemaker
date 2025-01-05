@@ -38,9 +38,13 @@ Catalog generated: out/parking-tiles.pdf
 ```
 
 ```bash
-py visualize_floor.py --rows 20 --cols 20 --title "kitchen" --in_file ".\images\mcl\parking\14400.jpg" --rotate --padding=2
+$ py visualize_floor.py --rows 20 --cols 20 --title "kitchen" --in_file ".\images\mcl\parking\14400.jpg" --rotate --padding=2
 ```
 
 ```bash
-py .\visualize_floor.py --json .\catalog\visualize-parking.json
+$ py .\visualize_floor.py --json .\catalog\visualize-parking.json
+
+or 
+
+$ py .\visualize_floor.py --json .\catalog\visualize-parking.json --pdf
 ```

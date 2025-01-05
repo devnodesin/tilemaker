@@ -1,4 +1,9 @@
 from PIL import Image, ImageDraw, ImageFont
+from reportlab.lib import colors
+from reportlab.lib.pagesizes import A4
+from reportlab.pdfgen import canvas
+from reportlab.lib.units import inch, mm
+import math
 import numpy as np
 import cv2
 import argparse
@@ -18,11 +23,12 @@ def parse_args():
     parser.add_argument('--padding', type=int, default=2, help='Padding between tiles (default: 2)')
     parser.add_argument('--in_file', type=str, help='Input tile image path')
     parser.add_argument('--out_file', type=str, help='Output file path (optional)')
+    parser.add_argument('--pdf', action='store_true', help='Generate PDF output')
     
     # Parse arguments
     return parser.parse_args()
 
-def apply_perspective(in_file: str, image: Image.Image, depth_factor: float = 2.0, saveFile: bool = True) -> Image.Image:
+def apply_perspective(in_file: str, image: Image.Image, depth_factor: float = 2.0, saveFile: bool = False) -> Image.Image:
     """Apply perspective transform to make floor appear 3D and save result
     Args:
         in_file: Input filename for save path
@@ -128,21 +134,8 @@ def get_rotation(row: int, col: int) -> int:
     ]
     return rotation_matrix[row % 2][col % 2]
 
-def generate_floor(rows: int, cols: int, in_file: str, title: str, 
-                  rotate: bool = False, out_file: str = None, padding: int = 0, saveFile: bool = True) -> Image.Image:
-    """Generate floor tile visualization
-    Args:
-        rows: Number of tile rows
-        cols: Number of tile columns
-        in_file: Input tile image path
-        title: Floor title
-        rotate: Whether to rotate alternate tiles
-        out_file: Optional output file path
-        padding: Space between tiles (default: 0)
-    Returns:
-        PIL Image of generated floor
-    """
-    # ...existing code...
+def generate_floor(rows: int, cols: int, in_file: str, rotate: bool = False, padding: int = 0, saveFile: bool = False) -> Image.Image:
+    
     try:
         # Load and resize tile image
         tile = Image.open(in_file)
@@ -167,9 +160,7 @@ def generate_floor(rows: int, cols: int, in_file: str, title: str,
         
         # Save result
         if saveFile:
-            # Determine output path
-            if not out_file:
-                out_file = f'{IMAGE_OUTPUT_PATH}{os.path.splitext(os.path.basename(in_file))[0]}_top.jpg'
+            out_file = f'{IMAGE_OUTPUT_PATH}{os.path.splitext(os.path.basename(in_file))[0]}_top.jpg'
             print(f"Saving {out_file}")
             floor.save(out_file)
         return floor
@@ -237,12 +228,77 @@ def append_thumbnail(title: str, in_file: str, image: Image.Image, saveFile: boo
     except Exception as e:
         print(f"Error adding thumbnail: {str(e)}")
         raise
+
+def make_pdf(files_list: list, pdf_path: str, title: str):
+    try:
+        print(f"Creating PDF...")
+        # Constants
+        PAGE_WIDTH, PAGE_HEIGHT = A4
+        MARGIN = 15 * mm
+        HEADER_OFFSET = 20 * mm
+        FOOTER_OFFSET = 15 * mm
+        IMAGE_MARGIN = 15 * mm
+        HEADER_FONT_SIZE = 14
+        PAGE_NUMBER_FONT_SIZE = 12
+        IMAGES_PER_PAGE = 2
+        LINE_OFFSET = 3 * mm
+        
+        # Calculate total pages and image size
+        total_pages = math.ceil(len(files_list) / IMAGES_PER_PAGE)
+        image_width = PAGE_WIDTH - (2 * MARGIN)
+        image_height = (PAGE_HEIGHT - (2 * MARGIN) - HEADER_OFFSET - FOOTER_OFFSET - IMAGE_MARGIN) / IMAGES_PER_PAGE
+        
+        # Create PDF
+        os.makedirs(os.path.dirname(pdf_path), exist_ok=True)
+        c = canvas.Canvas(pdf_path, pagesize=A4)
+        
+        # Process images
+        for i in range(0, len(files_list), IMAGES_PER_PAGE):
+            # Add header
+            c.setFont("Helvetica-Bold", HEADER_FONT_SIZE)
+            c.drawString(MARGIN, PAGE_HEIGHT - MARGIN, title)
+            
+            # Add horizontal line below header
+            c.setLineWidth(0.5)
+            line_y = PAGE_HEIGHT - MARGIN - LINE_OFFSET
+            c.line(MARGIN, line_y, PAGE_WIDTH - MARGIN, line_y)
+            
+            # Add images
+            for j in range(IMAGES_PER_PAGE):
+                if i + j < len(files_list):
+                    img_path = files_list[i + j]
+                    y_pos = PAGE_HEIGHT - MARGIN - HEADER_OFFSET - (image_height + IMAGE_MARGIN) * j
+                    c.drawImage(img_path, 
+                              MARGIN, 
+                              y_pos - image_height,
+                              width=image_width,
+                              height=image_height,
+                              preserveAspectRatio=True)
+            
+            # Add centered page number at bottom
+            page_num = f"Page {(i // IMAGES_PER_PAGE) + 1} of {total_pages}"
+            c.setFont("Helvetica", PAGE_NUMBER_FONT_SIZE)
+            text_width = c.stringWidth(page_num, "Helvetica", PAGE_NUMBER_FONT_SIZE)
+            x_position = (PAGE_WIDTH - text_width) / 2
+            c.drawString(x_position, MARGIN, page_num)
+            
+            c.showPage()
+        
+        c.save()
+        print(f"PDF Created: {pdf_path}")
+        
+    except Exception as e:
+        print(f"Error generating PDF: {str(e)}")
+        raise
+
 #####
 
-def json_process(json_path: str): 
+def json_process(json_path: str, savePDF: bool = False) -> list:
     """Load JSON config and generate floor visualization
     Args:
         json_path: Path to JSON config file
+    Returns:
+        List of file paths for generated images
     """
     try:
         # Load JSON config
@@ -250,34 +306,40 @@ def json_process(json_path: str):
             config = json.load(f)
         
         # Extract common settings
-        image_path = config['image_path']
         rows = config['rows']
         cols = config['cols']
 
         os.makedirs(IMAGE_OUTPUT_PATH, exist_ok=True)
+
+        FileList = []
         
         # Process each page
         for page in config['pages']:
             # Build input file path
-            in_file = os.path.join(image_path, page['file'])
+            in_file = page['file']
                        
             # Generate floor pattern
             floor = generate_floor(
                 rows=rows,
                 cols=cols,
                 in_file=in_file,
-                title=page['title'],
                 rotate=page['rotate'],
-                out_file=None,  # Don't save intermediate
-                padding=page['padding'],
-                saveFile=False
+                padding=page['padding']
             )
             
             # Apply perspective transform
-            floor = apply_perspective(in_file, floor, 2.5, saveFile=False)
+            floor = apply_perspective(in_file, floor, 2.5)
 
             # Append thumbnail with title
             floor = append_thumbnail(page['title'], in_file, floor)
+            
+            # Append to list for PDF generation
+            FileList.append(f'{IMAGE_OUTPUT_PATH}{os.path.splitext(os.path.basename(in_file))[0]}.jpg')
+
+        if savePDF:
+            make_pdf(FileList, config['output_pdf'], config['title'])
+
+        return FileList
             
             
     except Exception as e:
@@ -289,7 +351,11 @@ def main():
     # Handle JSON case
     if args.json:
         print(f"Processing JSON Filename: {args.json}")
-        json_process(args.json)
+        files = json_process(args.json, args.pdf)
+        
+
+        
+        
     else:
         # Validate required args for non-JSON case
         if not all([args.rows, args.cols, args.title, args.in_file]):
