@@ -1,4 +1,4 @@
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 import cv2
 import argparse
@@ -20,7 +20,7 @@ def parse_args():
     # Parse arguments
     return parser.parse_args()
 
-def apply_perspective(in_file: str, image: Image.Image, depth_factor: float = 2.0) -> Image.Image:
+def apply_perspective(in_file: str, image: Image.Image, depth_factor: float = 2.0, saveFile: bool = True) -> Image.Image:
     """Apply perspective transform to make floor appear 3D and save result
     Args:
         in_file: Input filename for save path
@@ -108,9 +108,9 @@ def apply_perspective(in_file: str, image: Image.Image, depth_factor: float = 2.
 
                 
         # Save if filename provided
-        if in_file:
+        if saveFile:
             result.save(prep_path)
-            print(f"Perspective view saved to: {prep_path}")
+            print(f"Saving {prep_path}")
             
         return result
         
@@ -133,7 +133,7 @@ def get_rotation(row: int, col: int) -> int:
     return rotation_matrix[row % 2][col % 2]
 
 def generate_floor(rows: int, cols: int, in_file: str, title: str, 
-                  rotate: bool = False, out_file: str = None, padding: int = 0) -> Image.Image:
+                  rotate: bool = False, out_file: str = None, padding: int = 0, saveFile: bool = True) -> Image.Image:
     """Generate floor tile visualization
     Args:
         rows: Number of tile rows
@@ -169,21 +169,83 @@ def generate_floor(rows: int, cols: int, in_file: str, title: str,
                 y = row * tile_size + (padding * row if row > 0 else 0)
                 floor.paste(current_tile, (x, y))
         
-        # Determine output path
-        if not out_file:
-            os.makedirs('./out/visual', exist_ok=True)
-            out_file = f'./out/visual/{os.path.splitext(os.path.basename(in_file))[0]}_top.jpg'
-        
         # Save result
-        floor.save(out_file)
-        print(f"Floor visualization saved to: {out_file}")
+        if saveFile:
+            # Determine output path
+            if not out_file:
+                os.makedirs('./out/visual', exist_ok=True)
+                out_file = f'./out/visual/{os.path.splitext(os.path.basename(in_file))[0]}_top.jpg'
+            print(f"Saving {out_file}")
+            floor.save(out_file)
         return floor
         
     except Exception as e:
         print(f"Error: {str(e)}")
         exit(1)
 
-def json_process(json_path: str):
+def append_thumbnail(title: str, in_file: str, image: Image.Image, saveFile: bool = True) -> Image.Image:
+    """Add thumbnail and title in white margin at bottom left of image
+    Args:
+        title: Text to display below thumbnail
+        in_file: Path to thumbnail image
+        image: Main image to append to
+        saveFile: Whether to save result
+    Returns:
+        Modified image with thumbnail
+    """
+    try:
+        # Constants
+        THUMB_SIZE = (400, 400)
+        PADDING = 20
+        FONT_SIZE = 30  # Increased font size
+        
+        # Create thumbnail with margin
+        thumb = Image.open(in_file)
+        thumb.thumbnail(THUMB_SIZE)
+        
+        # Create thumbnail background with margin
+        thumb_bg = Image.new('RGB', 
+                           (THUMB_SIZE[0] + PADDING * 2, 
+                            THUMB_SIZE[1] + PADDING * 2 + 35),  # Increased text space
+                           (255, 255, 255))
+        
+        # Place thumbnail on white background
+        thumb_bg.paste(thumb, (PADDING, PADDING))
+        
+        # Add title text with larger font
+        draw = ImageDraw.Draw(thumb_bg)
+        try:
+            font = ImageFont.truetype("arial.ttf", FONT_SIZE)
+        except:
+            font = ImageFont.load_default()
+        
+        # Position text below thumbnail
+        text_y = THUMB_SIZE[1] + PADDING + 5
+        draw.text((PADDING, text_y), title, fill='black', font=font)
+        
+        # Create final image (same size as input)
+        final = image.copy()
+        
+        # Place thumbnail at bottom left
+        thumb_x = PADDING
+        thumb_y = image.size[1] - thumb_bg.size[1] - PADDING
+        final.paste(thumb_bg, (thumb_x, thumb_y))
+        
+        # Save if requested
+        if saveFile:
+            os.makedirs('./out/visual', exist_ok=True)
+            out_file = f'./out/visual/{os.path.splitext(os.path.basename(in_file))[0]}_thumb.jpg'
+            final.save(out_file)
+            print(f"Saved with thumbnail: {out_file}")
+            
+        return final
+        
+    except Exception as e:
+        print(f"Error adding thumbnail: {str(e)}")
+        raise
+#####
+
+def json_process(json_path: str): 
     """Load JSON config and generate floor visualization
     Args:
         json_path: Path to JSON config file
@@ -206,9 +268,6 @@ def json_process(json_path: str):
             # Generate output file path
             out_dir = './out/visual'
             os.makedirs(out_dir, exist_ok=True)
-            out_file = os.path.join(out_dir, f"{page['title']}_floor.jpg")
-
-            print(f"Processing page: {in_file}")
             
             # Generate floor pattern
             floor = generate_floor(
@@ -218,11 +277,16 @@ def json_process(json_path: str):
                 title=page['title'],
                 rotate=page['rotate'],
                 out_file=None,  # Don't save intermediate
-                padding=page['padding']
+                padding=page['padding'],
+                saveFile=False
             )
             
             # Apply perspective transform
-            floor = apply_perspective(in_file, floor, 2.5)
+            floor = apply_perspective(in_file, floor, 2.5, saveFile=False)
+
+            # Append thumbnail with title
+            floor = append_thumbnail(page['title'], in_file, floor)
+            
             
     except Exception as e:
         print(f"Error processing JSON config: {str(e)}")
@@ -232,7 +296,7 @@ def main():
     args = parse_args()
     # Handle JSON case
     if args.json:
-        print(f"Filename: {args.json}")
+        print(f"Processing JSON Filename: {args.json}")
         json_process(args.json)
     else:
         # Validate required args for non-JSON case
@@ -244,6 +308,9 @@ def main():
                   args.rotate, args.out_file, args.padding)
             # Apply perspective transform
             floor = apply_perspective(args.in_file , floor, 2.5)
+
+            # Append thumbnail with title
+            floor = append_thumbnail(args.title, args.in_file, floor)
 
 
 if __name__ == "__main__":

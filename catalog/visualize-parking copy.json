@@ -1,0 +1,33 @@
+{
+  "image_path": "./images/mcl/parking",
+  "output_pdf": "out/parking-tiles.pdf",
+  "title": "Deltaware.in - Parking Tiles Catalog - Whatsapp: 9940198130",
+  "rows": 20,
+  "cols": 20,
+  "pages": [
+    { "title": "204 BOX SAND", "file": "14204.jpg", "rotate": false, "padding": 2 },
+    { "title": "202 BOX COPPER", "file": "14202.jpg", "rotate": false, "padding": 2 },
+    { "title": "203 BOX STONE", "file": "14203.jpg", "rotate": false, "padding": 2 },
+    { "title": "402 DNA COPPER", "file": "14402.jpg", "rotate": true, "padding": 2 },
+    { "title": "403 DNA BLUE", "file": "14403.jpg", "rotate": true, "padding": 2 },
+    { "title": "400 DNA BLACK", "file": "14400.jpg", "rotate": true, "padding": 2 },
+    { "title": "502 FLOWER COPPER", "file": "14502.jpg", "rotate": true, "padding": 2 },
+    { "title": "504 FLOWER BLUE", "file": "14504.jpg", "rotate": true, "padding": 2 },
+    { "title": "503 FLOWER GREEN", "file": "14503.jpg", "rotate": true, "padding": 2 },
+    { "title": "602 CIRCLE COPPER", "file": "14602.jpg", "rotate": true, "padding": 2 },
+    { "title": "603 CIRCLE BLUE", "file": "14603.jpg", "rotate": true, "padding": 2 },
+    { "title": "601 CIRCLE STONE", "file": "14601.jpg", "rotate": true, "padding": 2 },
+    { "title": "301 BAR GREY", "file": "14301.jpg", "rotate": false, "padding": 2 },
+    { "title": "300 BAR BEIGE", "file": "14300.jpg", "rotate": false, "padding": 2 },
+    { "title": "003 STRIPE DARK", "file": "14003.jpg", "rotate": false, "padding": 2 },
+    { "title": "001 STRIPE LIGHT", "file": "14001.jpg", "rotate": false, "padding": 2 },
+    { "title": "000 STRIPE L.BLUE", "file": "14000.jpg", "rotate": true, "padding": 2 },
+    { "title": "002 STRIPE L.BEIGE", "file": "14002.jpg", "rotate": true, "padding": 2 },
+    { "title": "106 PLAIN STONE", "file": "14106.jpg", "rotate": false, "padding": 2 },
+    { "title": "107 PLAIN BROWN", "file": "14107.jpg", "rotate": false, "padding": 2 },
+    { "title": "101 PLAIN FLOWER", "file": "14101.jpg", "rotate": false, "padding": 2 },
+    { "title": "102 PLAIN BLUE", "file": "14102.jpg", "rotate": false, "padding": 2 },
+    { "title": "103 PLAIN L.BLUE", "file": "14103.jpg", "rotate": false, "padding": 2 },
+    { "title": "104 PLAIN BROWN", "file": "14104.jpg", "rotate": false, "padding": 2 }
+  ]
+}
