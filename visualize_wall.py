@@ -146,62 +146,120 @@ def create_wall_visualization(config):
             
     return generated_images
 
-def generate_pdf(image_paths, pdf_path, compress=False):
-    """Generate a PDF containing all the generated images."""
+def generate_pdf(image_paths, pdf_path, compress=False, title=''):
+    """Generate a PDF containing all the generated images (2 per page)."""
     try:
-        # Create the PDF
-        c = canvas.Canvas(pdf_path, pagesize=landscape(A4))
-        width, height = landscape(A4)
+        # Create the PDF with A4 portrait orientation
+        c = canvas.Canvas(pdf_path, pagesize=A4)
+        width, height = A4  # A4 in portrait mode
         
-        for img_path in image_paths:
-            # Open the image
-            img = Image.open(img_path)
+        # Define margins (10px on each side)
+        margin = 10
+        usable_width = width - (2 * margin)
+        usable_height = height - (2 * margin)
+        
+        # Reserve space for header and footer
+        header_height = 30
+        footer_height = 20
+        
+        # Calculate space available for images
+        image_area_height = (usable_height - header_height - footer_height)
+        # Each image gets half of the available space minus 5px spacing between images
+        single_image_height = (image_area_height - 5) / 2
+        
+        # Process images two at a time
+        for i in range(0, len(image_paths), 2):
+            page_num = (i // 2) + 1
             
-            # If compression is enabled, reduce the image quality
+            # Add header with the page title
+            c.setFont("Helvetica-Bold", 12)
+            header_text = f"{title}"
+            c.drawString(margin, height - margin - 15, header_text)
+            
+            # Add the first image
+            img1_path = image_paths[i]
+            img1 = Image.open(img1_path)
+            
+            # Compression if enabled
             if compress:
-                # Resize the image to reduce its dimensions (optional)
-                # Here we're reducing by 30%
-                new_size = (int(img.width * 0.7), int(img.height * 0.7))
-                img = img.resize(new_size, Image.LANCZOS)
-                
-                # Save to a temporary file with compression
-                temp_path = f"{img_path}_compressed.jpg"
-                img.save(temp_path, "JPEG", quality=25)
-                img = Image.open(temp_path)
-                img_path = temp_path  # Use the compressed image
+                new_size = (int(img1.width * 0.7), int(img1.height * 0.7))
+                img1 = img1.resize(new_size, Image.LANCZOS)
+                temp_path1 = f"{img1_path}_compressed.jpg"
+                img1.save(temp_path1, "JPEG", quality=25)
+                img1 = Image.open(temp_path1)
+                img1_path = temp_path1
             
-            # Resize the image to fit the PDF page while maintaining aspect ratio
-            img_width, img_height = img.size
-            img_ratio = img_width / img_height
-            page_ratio = width / height
+            # Calculate dimensions for the first image
+            img1_width, img1_height = img1.size
+            img1_ratio = img1_width / img1_height
             
-            if img_ratio > page_ratio:
-                # Image is wider than the page (relative to height)
-                new_width = width - 40  # 20px margin on each side
-                new_height = new_width / img_ratio
-            else:
-                # Image is taller than the page (relative to width)
-                new_height = height - 40  # 20px margin on top and bottom
-                new_width = new_height * img_ratio
+            new_height1 = single_image_height
+            new_width1 = new_height1 * img1_ratio
+            if new_width1 > usable_width:
+                new_width1 = usable_width
+                new_height1 = new_width1 / img1_ratio
             
-            # Center the image on the page
-            x = (width - new_width) / 2
-            y = (height - new_height) / 2
+            # Position for first image (centered horizontally, at top of image area)
+            x1 = margin + (usable_width - new_width1) / 2
+            y1 = height - margin - header_height - new_height1
             
-            # Add the image to the PDF
-            c.drawImage(ImageReader(img), x, y, width=new_width, height=new_height)
+            c.drawImage(ImageReader(img1), x1, y1, width=new_width1, height=new_height1)
             
-            # Add a new page for the next image (if there is one)
-            if img_path != image_paths[-1]:
-                c.showPage()
-            
-            # Clean up temporary file if compression was used
-            if compress and img_path.endswith("_compressed.jpg"):
+            # Clean up temp file if needed
+            if compress and img1_path.endswith("_compressed.jpg"):
                 try:
-                    os.remove(img_path)
+                    os.remove(img1_path)
                 except:
                     pass
+            
+            # Add second image if available
+            if i + 1 < len(image_paths):
+                img2_path = image_paths[i + 1]
+                img2 = Image.open(img2_path)
                 
+                # Compression if enabled
+                if compress:
+                    new_size = (int(img2.width * 0.7), int(img2.height * 0.7))
+                    img2 = img2.resize(new_size, Image.LANCZOS)
+                    temp_path2 = f"{img2_path}_compressed.jpg"
+                    img2.save(temp_path2, "JPEG", quality=25)
+                    img2 = Image.open(temp_path2)
+                    img2_path = temp_path2
+                
+                # Calculate dimensions for second image
+                img2_width, img2_height = img2.size
+                img2_ratio = img2_width / img2_height
+                
+                new_height2 = single_image_height
+                new_width2 = new_height2 * img2_ratio
+                if new_width2 > usable_width:
+                    new_width2 = usable_width
+                    new_height2 = new_width2 / img2_ratio
+                
+                # Position for second image (centered horizontally, bottom of image area)
+                x2 = margin + (usable_width - new_width2) / 2
+                y2 = margin + footer_height
+                
+                c.drawImage(ImageReader(img2), x2, y2, width=new_width2, height=new_height2)
+                
+                # Clean up temp file if needed
+                if compress and img2_path.endswith("_compressed.jpg"):
+                    try:
+                        os.remove(img2_path)
+                    except:
+                        pass
+            
+            # Add page number at bottom center
+            c.setFont("Helvetica", 10)
+            total_pages = (len(image_paths) + 1) // 2
+            page_text = f"Page {page_num} of {total_pages}"
+            text_width = c.stringWidth(page_text, "Helvetica", 10)
+            c.drawString((width - text_width) / 2, margin + 5, page_text)
+            
+            # Add a new page if there are more images to come
+            if i + 2 < len(image_paths):
+                c.showPage()
+        
         # Save the PDF
         c.save()
         print(f"Created PDF: {pdf_path}")
@@ -238,7 +296,8 @@ def main():
                 pdf_path = f"./out/visualize-wall-{base_name}.pdf"
             
             # Pass the mini flag to the PDF generator
-            generate_pdf(generated_images, pdf_path, compress=args.mini)
+            pdf_header = config.get('title', 'Deltaware.in - Tiles Catalog - Whatsapp: 9940198130')
+            generate_pdf(generated_images, pdf_path, compress=args.mini, title=pdf_header)
         
     except FileNotFoundError:
         print(f"Error: Configuration file '{args.config_file}' not found")
