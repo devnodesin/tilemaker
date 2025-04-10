@@ -362,7 +362,7 @@ def main():
             print("Error: Missing required arguments")
         else:
             print("Direct processing\n\n")
-            floor = generate_floor(args.rows, args.cols, args.in_file, args.title, 
+            floor = generate_floor(args.rows, args.cols, args.in_file,  
                   args.rotate, args.out_file, args.padding)
             # Apply perspective transform
             floor = apply_perspective(args.in_file , floor, 2.5)

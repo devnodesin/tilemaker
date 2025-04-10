@@ -1,0 +1,88 @@
+{
+  "output_pdf": "./out/parking-tiles-cat.pdf",
+  "title": "Deltaware.in - Parking Tiles Catalog - Whatsapp: 9940198130",
+  "pages": [
+    {
+      "title": "1039",
+      "path": "./images/mc/wall/bath/",
+      "cols": 4,
+      "images": ["1039-1.jpg","1039-1.jpg", "1039-2.jpg", "1039-3.jpg", "1039-1.jpg", "1039-1.jpg"],
+      "footer": ["1039-1.jpg","1039-2.jpg", "1039-3.jpg", "1039-F.jpg"]
+    },
+    {
+      "title": "1040",
+      "path": "./images/mc/wall/bath/",
+      "cols": 4,
+      "images": ["1040-1.jpg","1040-1.jpg", "1040-2.jpg", "1040-3.jpg", "1040-3.jpg"],
+      "footer": ["1040-1.jpg","1040-2.jpg", "1040-3.jpg", "1040-F.jpg"]
+    },
+    {
+      "title": "1045",
+      "path": "./images/mc/wall/bath/",
+      "images": ["1045-1.jpg","1045-1.jpg","1045-2.jpg", "1045-3.jpg", "1045-4.jpg", "1045-4.jpg", "1045-4.jpg"],
+      "footer": ["1045-1.jpg","1045-2.jpg", "1045-3.jpg", "1045-4.jpg", "1045-F.jpg"]
+    },
+    {
+      "title": "1047",
+      "path": "./images/mc/wall/bath/",
+      "images": ["1047-1.jpg","1047-1.jpg", "1047-2.jpg", "1047-3.jpg", "1047-4.jpg", "1047-4.jpg"],
+      "footer": ["1047-1.jpg","1047-2.jpg", "1047-3.jpg", "1047-4.jpg", "1047-F.jpg"]
+    },
+    {
+      "title": "1063",
+      "path": "./images/mc/wall/bath/",
+      "cols": 4,
+      "images": ["1063-4.jpg","1063-4.jpg","1063-2.jpg", "1063-3.jpg", "1063-4.jpg", "1063-4.jpg"],
+      "footer": ["1063-2.jpg", "1063-3.jpg", "1063-4.jpg", "1063-F.jpg"]
+    },
+    {
+      "title": "1064",
+      "path": "./images/mc/wall/bath/",
+      "cols": 4,
+      "images": ["1064-4.jpg","1064-4.jpg","1064-2.jpg", "1064-3.jpg", "1064-4.jpg", "1064-4.jpg"],
+      "footer": ["1064-2.jpg", "1064-3.jpg", "1064-4.jpg", "1064-F.jpg"]
+    },
+    {
+      "title": "1070",
+      "path": "./images/mc/wall/bath/",
+      "images": ["1070-1.jpg","1070-1.jpg","1070-2.jpg", "1070-3.jpg", "1070-4.jpg", "1070-4.jpg"],
+      "footer": ["1070-1.jpg","1070-2.jpg", "1070-3.jpg", "1070-4.jpg", "1070-F.jpg"]
+    },
+    {
+      "title": "1071",
+      "path": "./images/mc/wall/bath/",
+      "images": ["1071-1.jpg","1071-1.jpg","1071-2.jpg", "1071-3.jpg", "1071-4.jpg", "1071-4.jpg"],
+      "footer": ["1071-1.jpg","1071-2.jpg", "1071-3.jpg", "1071-4.jpg", "1071-F.jpg"]
+    },
+    {
+      "title": "1072",
+      "path": "./images/mc/wall/bath/",
+      "images": ["1072-1.jpg","1072-1.jpg","1072-2.jpg", "1072-3.jpg", "1072-4.jpg", "1072-4.jpg"],
+      "footer": ["1072-1.jpg","1072-2.jpg", "1072-3.jpg", "1072-4.jpg", "1072-F.jpg"]
+    },
+    {
+      "title": "1075",
+      "path": "./images/mc/wall/bath/",
+      "images": ["1075-1.jpg","1075-1.jpg","1075-2.jpg", "1075-3.jpg", "1075-4.jpg", "1075-4.jpg"],
+      "footer": ["1075-1.jpg","1075-2.jpg", "1075-3.jpg", "1075-4.jpg", "1075-F.jpg"]
+    },
+    {
+      "title": "1078",
+      "path": "./images/mc/wall/bath/",
+      "images": ["1078-1.jpg","1078-1.jpg","1078-2.jpg", "1078-3.jpg", "1078-4.jpg", "1078-4.jpg"],
+      "footer": ["1078-1.jpg","1078-2.jpg", "1078-3.jpg", "1078-4.jpg", "1078-F.jpg"]
+    },
+    {
+      "title": "1083",
+      "path": "./images/mc/wall/bath/",
+      "images": ["1083-1.jpg","1083-1.jpg","1083-2.jpg", "1083-3.jpg", "1083-4.jpg", "1083-4.jpg"],
+      "footer": ["1083-1.jpg","1083-2.jpg", "1083-3.jpg", "1083-4.jpg", "1083-F.jpg"]
+    },
+    {
+      "title": "1094",
+      "path": "./images/mc/wall/bath/",
+      "images": ["1094-1.jpg","1094-1.jpg","1094-2.jpg", "1094-3.jpg", "1094-4.jpg", "1094-4.jpg"],
+      "footer": ["1094-1.jpg","1094-2.jpg", "1094-3.jpg", "1094-4.jpg", "1094-F.jpg"]
+    }
+  ]
+}

@@ -21,7 +21,7 @@ pip install Pillow reportlab
 `simple_catalog.py` generates a PDF catalog from a directory of images. It automatically arranges images in a grid layout, adds page numbers, and creates a clean professional output. Images are resized and optimized for consistent display.
 
 ```bash
-$ py simple_catalog.py --img ./images/mcl/parking/
+$ python simple_catalog.py --img ./images/mcl/parking/
 Product catalog created: out/product_catalog.pdf
 ```
 
@@ -33,18 +33,25 @@ Product catalog created: out/product_catalog.pdf
 - Professional headers and page numbers
 
 ```bash
-$ py  make_catalog.py --config catalog/parking-tiles.json
+$ python  make_catalog.py --config catalog/parking-tiles.json
 Catalog generated: out/parking-tiles.pdf
 ```
 
 ```bash
-$ py visualize_floor.py --rows 20 --cols 20 --title "kitchen" --in_file ".\images\mcl\parking\14400.jpg" --rotate --padding=2
+$ python visualize_floor.py --rows 20 --cols 20 --title "kitchen" --in_file ".\images\mcl\parking\14400.jpg" --rotate --padding=2
 ```
 
 ```bash
-$ py .\visualize_floor.py --json .\catalog\visualize-parking.json
+$ python .\visualize_floor.py --json .\catalog\visualize-parking.json
 
 or 
 
-$ py .\visualize_floor.py --json .\catalog\visualize-parking.json --pdf
+$ python .\visualize_floor.py --json .\catalog\visualize-parking.json --pdf
+```
+
+
+## Catalog Wall 
+
+```bash
+python .\visualize_wall.py .\catalog\visualize-wall-bath.json --pdf --mini
 ```
