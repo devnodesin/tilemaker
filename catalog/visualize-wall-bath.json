@@ -3,11 +3,29 @@
   "title": "Deltaware.in - Wall Tiles Catalog - Whatsapp: 9940198130",
   "pages": [
     {
+      "title": "4009",
+      "path": "./images/mc/wall/single/",
+      "images": ["4009-1.jpg","4009-1.jpg", "4009-1.jpg", "4009-1.jpg"],
+      "footer": ["4009-1.jpg","4009-F.jpg"]
+    },
+    {
       "title": "1039",
       "path": "./images/mc/wall/bath/",
       "cols": 5,
       "images": ["1039-1.jpg", "1039-2.jpg", "1039-3.jpg", "1039-1.jpg"],
       "footer": ["1039-1.jpg","1039-2.jpg", "1039-3.jpg", "1039-F.jpg"]
+    },
+    {
+      "title": "1078",
+      "path": "./images/mc/wall/bath/",
+      "images": ["1078-1.jpg","1078-2.jpg", "1078-3.jpg", "1078-4.jpg"],
+      "footer": ["1078-1.jpg","1078-2.jpg", "1078-3.jpg", "1078-4.jpg", "1078-F.jpg"]
+    },
+    {
+      "title": "1063",
+      "path": "./images/mc/wall/bath/",
+      "images": ["1063-4.jpg","1063-2.jpg", "1063-3.jpg", "1063-4.jpg"],
+      "footer": ["1063-2.jpg", "1063-3.jpg", "1063-4.jpg", "1063-F.jpg"]
     },
     {
       "title": "1040",
@@ -28,12 +46,7 @@
       "images": ["1047-1.jpg", "1047-2.jpg", "1047-3.jpg", "1047-4.jpg"],
       "footer": ["1047-1.jpg","1047-2.jpg", "1047-3.jpg", "1047-4.jpg", "1047-F.jpg"]
     },
-    {
-      "title": "1063",
-      "path": "./images/mc/wall/bath/",
-      "images": ["1063-4.jpg","1063-2.jpg", "1063-3.jpg", "1063-4.jpg"],
-      "footer": ["1063-2.jpg", "1063-3.jpg", "1063-4.jpg", "1063-F.jpg"]
-    },
+    
     {
       "title": "1064",
       "path": "./images/mc/wall/bath/",
@@ -65,12 +78,6 @@
       "footer": ["1075-1.jpg","1075-2.jpg", "1075-3.jpg", "1075-4.jpg", "1075-F.jpg"]
     },
     {
-      "title": "1078",
-      "path": "./images/mc/wall/bath/",
-      "images": ["1078-1.jpg","1078-2.jpg", "1078-3.jpg", "1078-4.jpg"],
-      "footer": ["1078-1.jpg","1078-2.jpg", "1078-3.jpg", "1078-4.jpg", "1078-F.jpg"]
-    },
-    {
       "title": "1083",
       "path": "./images/mc/wall/bath/",
       "images": ["1083-1.jpg","1083-2.jpg", "1083-3.jpg", "1083-4.jpg"],
@@ -93,6 +100,78 @@
       "path": "./images/mc/wall/row-3-fast/",
       "images": ["1043-1.jpg","1043-2.jpg", "1043-2.jpg", "1043-3.jpg"],
       "footer": ["1043-1.jpg","1043-2.jpg", "1043-3.jpg", "1043-F.jpg"]
+    },
+    {
+      "title": "2346",
+      "path": "./images/mc/wall/row-3/",
+      "images": ["2346-1.jpg","2346-2.jpg", "2346-2.jpg", "2346-3.jpg"],
+      "footer": ["2346-1.jpg","2346-2.jpg", "2346-3.jpg", "2346-F.jpg"]
+    },
+    {
+      "title": "1061",
+      "path": "./images/mc/wall/row-3-fast/",
+      "images": ["1061-1.jpg","1061-2.jpg", "1061-2.jpg", "1061-3.jpg"],
+      "footer": ["1061-1.jpg","1061-2.jpg", "1061-3.jpg", "1061-F.jpg"]
+    },
+    {
+      "title": "1046",
+      "path": "./images/mc/wall/row-3-fast/",
+      "images": ["1046-1.jpg","1046-2.jpg", "1046-2.jpg", "1046-3.jpg"],
+      "footer": ["1046-1.jpg","1046-2.jpg", "1046-3.jpg", "1046-F.jpg"]
+    },
+    {
+      "title": "1062",
+      "path": "./images/mc/wall/row-3-fast/",
+      "images": ["1062-1.jpg","1062-2.jpg", "1062-2.jpg", "1062-3.jpg"],
+      "footer": ["1062-1.jpg","1062-2.jpg", "1062-3.jpg", "1062-F.jpg"]
+    },
+    {
+      "title": "1093",
+      "path": "./images/mc/wall/row-3-fast/",
+      "images": ["1093-1.jpg","1093-2.jpg", "1093-2.jpg", "1093-3.jpg"],
+      "footer": ["1093-1.jpg","1093-2.jpg", "1093-3.jpg", "1093-F.jpg"]
+    },
+    {
+      "title": "1122",
+      "path": "./images/mc/wall/row-3-fast/",
+      "images": ["1122-1.jpg","1122-2.jpg", "1122-2.jpg", "1122-3.jpg"],
+      "footer": ["1122-1.jpg","1122-2.jpg", "1122-3.jpg", "1122-F.jpg"]
+    },
+    {
+      "title": "1984",
+      "path": "./images/mc/wall/row-3-fast/",
+      "images": ["1984-1.jpg","1984-2.jpg", "1984-2.jpg", "1984-3.jpg"],
+      "footer": ["1984-1.jpg","1984-2.jpg", "1984-3.jpg", "1984-F.jpg"]
+    },
+    {
+      "title": "2221",
+      "path": "./images/mc/wall/row-3-fast/",
+      "images": ["2221-1.jpg","2221-2.jpg", "2221-2.jpg", "2221-3.jpg"],
+      "footer": ["2221-1.jpg","2221-2.jpg", "2221-3.jpg", "2221-F.jpg"]
+    },
+    {
+      "title": "1031",
+      "path": "./images/mc/wall/row-3/",
+      "images": ["1031-1.jpg","1031-2.jpg", "1031-2.jpg", "1031-3.jpg"],
+      "footer": ["1031-1.jpg","1031-2.jpg", "1031-3.jpg", "1031-F.jpg"]
+    },
+    {
+      "title": "1028",
+      "path": "./images/mc/wall/row-3/",
+      "images": ["1028-1.jpg","1028-2.jpg", "1028-2.jpg", "1028-3.jpg"],
+      "footer": ["1028-1.jpg","1028-2.jpg", "1028-3.jpg", "1028-F.jpg"]
+    },
+    {
+      "title": "1030",
+      "path": "./images/mc/wall/row-3/",
+      "images": ["1030-1.jpg","1030-2.jpg", "1030-2.jpg", "1030-3.jpg"],
+      "footer": ["1030-1.jpg","1030-2.jpg", "1030-3.jpg", "1030-F.jpg"]
+    },
+    {
+      "title": "2337",
+      "path": "./images/mc/wall/row-3/",
+      "images": ["2337-1.jpg","2337-2.jpg", "2337-2.jpg", "2337-3.jpg"],
+      "footer": ["2337-1.jpg","2337-2.jpg", "2337-3.jpg", "2337-F.jpg"]
     }
   ]
 }
