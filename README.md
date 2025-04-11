@@ -54,4 +54,7 @@ $ python .\visualize_floor.py --json .\catalog\visualize-parking.json --pdf
 
 ```bash
 python .\visualize_wall.py .\catalog\visualize-wall-bath.json --pdf --mini
+python .\visualize_wall.py .\catalog\visualize-wall-kitchen.json --pdf
+python .\visualize_wall.py .\catalog\visualize-wall-elevaton.json --pdf
+python .\visualize_wall.py .\catalog\visualize-wall-bath.json --pdf
 ```

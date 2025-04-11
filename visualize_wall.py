@@ -28,6 +28,11 @@ def create_wall_visualization(config):
         padding = page.get('padding', 3)
         title_left_padding = page.get('title_padding', 30)  # New parameter for title left padding
         
+        # Get random images if available
+        random_image_paths = []
+        if 'images_random' in page:
+            random_image_paths = [os.path.join(page['path'], img) for img in page['images_random']]
+        
         # Get footer images if available
         footer_images = []
         if 'footer' in page:
@@ -69,22 +74,39 @@ def create_wall_visualization(config):
             wall_image = Image.new('RGB', (total_width, final_height), color='white')
             
             # Place the tiles on the canvas
+            current_row_img_idx = 0  # Track the current image index for the row
             for row in range(rows):
+                # Determine which image to use for this row
+                if row < len(image_paths):
+                    current_row_img_idx = row
+                else:
+                    # If we've used all images, restart from the first image
+                    current_row_img_idx = row % len(image_paths)
+                    
+                img_path = image_paths[current_row_img_idx]
+                
                 for col in range(cols):
-                    # For the first column, use image from the images array based on row index
-                    if col == 0:
-                        img_path = image_paths[row]
-                    # For other columns, always repeat the first image of the row
+                    if random_image_paths:
+                        # Pattern: original image at even positions, random at odd positions
+                        if (row + col) % 2 == 0:
+                            # Use the current row's main image
+                            current_img_path = img_path
+                        else:
+                            # Use a random image from the random_image_paths
+                            # Use a consistent seed for reproducibility but still get variety
+                            np.random.seed((row + 1) * (col + 1) + np.random.randint(100))
+                            current_img_path = np.random.choice(random_image_paths)
                     else:
-                        img_path = image_paths[row]
+                        # Without random images, just repeat the row's main image across all columns
+                        current_img_path = img_path
                     
                     try:
-                        img = Image.open(img_path)
+                        img = Image.open(current_img_path)
                         x = col * (img_width + padding)
                         y = row * (img_height + padding)
                         wall_image.paste(img, (x, y))
                     except Exception as e:
-                        print(f"Error processing image {img_path}: {e}")
+                        print(f"Error processing image {current_img_path}: {e}")
             
             # Calculate positions for footer section
             title_start_y = total_height + footer_spacing
@@ -149,9 +171,11 @@ def create_wall_visualization(config):
 def generate_pdf(image_paths, pdf_path, compress=False, title=''):
     """Generate a PDF containing all the generated images (2 per page)."""
     try:
-        # Create the PDF with A4 portrait orientation
-        c = canvas.Canvas(pdf_path, pagesize=A4)
-        width, height = A4  # A4 in portrait mode
+        # Create the PDF with US Letter (8.5" x 11") size
+        # 1 inch = 72 points, so 8.5" x 11" = 612 x 792 points
+        letter_size = (612, 792)  # Width: 8.5", Height: 11" in points
+        c = canvas.Canvas(pdf_path, pagesize=letter_size)
+        width, height = letter_size  # Use letter size dimensions
         
         # Define margins (10px on each side)
         margin = 10
@@ -174,7 +198,8 @@ def generate_pdf(image_paths, pdf_path, compress=False, title=''):
             # Add header with the page title
             c.setFont("Helvetica-Bold", 12)
             header_text = f"{title}"
-            c.drawString(margin, height - margin - 15, header_text)
+            text_width = c.stringWidth(header_text, "Helvetica-Bold", 12)
+            c.drawString(margin + (usable_width - text_width) / 2, height - margin - 15, header_text)
             
             # Add the first image
             img1_path = image_paths[i]
