@@ -52,8 +52,10 @@ $ python .\visualize_floor.py --json .\catalog\visualize-parking.json --pdf
 ## Catalog Wall
 
 ```bash
-python .\visualize_wall.py .\catalog\visualize-wall-bath.json --pdf --mini
+python .\visualize_wall.py .\catalog\visualize-wall-bath.json
 
-python .\visualize_wall.py .\catalog\visualize-wall-catalog-kit-ele.json --pdf --cover .\images\cover\yellow.jpg
-python .\visualize_wall.py .\catalog\visualize-wall-catalog.json --pdf --cover .\images\cover\yellow.jpg
+or # Printable Catalogs 
+
+python .\visualize_wall.py .\catalog\visualize-wall-catalog.json --pdf --print 16 --cover .\images\cover\red.jpg
+python .\visualize_wall.py .\catalog\visualize-wall-catalog-kit-ele.json --pdf --print 12 --cover .\images\cover\yellow.jpg
 ```

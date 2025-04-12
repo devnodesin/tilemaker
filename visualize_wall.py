@@ -7,6 +7,9 @@ import pathlib
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4, landscape
 from reportlab.lib.utils import ImageReader
+# Add these imports for embedding fonts
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 
 def create_wall_visualization(config):
     """Create wall tile visualizations based on the provided configuration."""
@@ -166,14 +169,49 @@ def create_wall_visualization(config):
             
     return generated_images
 
-def generate_pdf(image_paths, pdf_path, compress=False, title='', cover_image_path=None):
+def generate_pdf(image_paths, pdf_path, title='', cover_image_path=None, print_ready=False, page_count=None):
     """Generate a PDF containing all the generated images (2 per page)."""
     try:
         # Create the PDF with US Letter (8.5" x 11") size
         # 1 inch = 72 points, so 8.5" x 11" = 612 x 792 points
         letter_size = (612, 792)  # Width: 8.5", Height: 11" in points
+        
+        # Register and embed fonts if print_ready is enabled
+        if print_ready:
+            try:
+                # Register common fonts for embedding
+                helvetica_path = os.path.join(os.environ.get('WINDIR', ''), 'Fonts', 'arial.ttf')
+                if os.path.exists(helvetica_path):
+                    pdfmetrics.registerFont(TTFont('Helvetica', helvetica_path))
+                    pdfmetrics.registerFont(TTFont('Helvetica-Bold', os.path.join(os.environ.get('WINDIR', ''), 'Fonts', 'arialbd.ttf')))
+                print("Fonts embedded for print-ready output")
+            except Exception as e:
+                print(f"Warning: Could not embed fonts: {e}. Using default fonts.")
+        
+        # Create PDF with print-ready settings if needed
         c = canvas.Canvas(pdf_path, pagesize=letter_size)
+        if print_ready:
+            # Set PDF metadata for print-ready document
+            c.setTitle(f"Print-Ready Tile Catalog - {title}")
+            c.setSubject("Tile Catalog for Print")
+            c.setAuthor("Deltaware.in")
+            c.setCreator("TileMaker Visualization Tool")
+            c.setKeywords("tiles, catalog, print")
+        
         width, height = letter_size  # Use letter size dimensions
+        
+        # Calculate how many pages we'll need for images (2 images per page)
+        has_cover = cover_image_path and os.path.exists(cover_image_path)
+        actual_pages = (len(image_paths) + 1) // 2
+        total_actual_pages = actual_pages + (1 if has_cover else 0)
+        
+        # If page_count is specified and greater than actual pages, we'll add empty pages
+        total_pages_to_generate = max(total_actual_pages, page_count or 0)
+        if page_count and page_count > total_actual_pages:
+            print(f"Adding {page_count - total_actual_pages} empty pages to meet requested page count of {page_count}")
+        
+        # Calculate the final total pages for page numbering
+        total_pages_with_cover = total_pages_to_generate 
         
         # Add cover page if provided
         if cover_image_path and os.path.exists(cover_image_path):
@@ -237,15 +275,6 @@ def generate_pdf(image_paths, pdf_path, compress=False, title='', cover_image_pa
             img1_path = image_paths[i]
             img1 = Image.open(img1_path)
             
-            # Compression if enabled
-            if compress:
-                new_size = (int(img1.width * 0.7), int(img1.height * 0.7))
-                img1 = img1.resize(new_size, Image.LANCZOS)
-                temp_path1 = f"{img1_path}_compressed.jpg"
-                img1.save(temp_path1, "JPEG", quality=25)
-                img1 = Image.open(temp_path1)
-                img1_path = temp_path1
-            
             # Calculate dimensions for the first image
             img1_width, img1_height = img1.size
             img1_ratio = img1_width / img1_height
@@ -262,26 +291,10 @@ def generate_pdf(image_paths, pdf_path, compress=False, title='', cover_image_pa
             
             c.drawImage(ImageReader(img1), x1, y1, width=new_width1, height=new_height1)
             
-            # Clean up temp file if needed
-            if compress and img1_path.endswith("_compressed.jpg"):
-                try:
-                    os.remove(img1_path)
-                except:
-                    pass
-            
             # Add second image if available
             if i + 1 < len(image_paths):
                 img2_path = image_paths[i + 1]
                 img2 = Image.open(img2_path)
-                
-                # Compression if enabled
-                if compress:
-                    new_size = (int(img2.width * 0.7), int(img2.height * 0.7))
-                    img2 = img2.resize(new_size, Image.LANCZOS)
-                    temp_path2 = f"{img2_path}_compressed.jpg"
-                    img2.save(temp_path2, "JPEG", quality=25)
-                    img2 = Image.open(temp_path2)
-                    img2_path = temp_path2
                 
                 # Calculate dimensions for second image
                 img2_width, img2_height = img2.size
@@ -298,18 +311,9 @@ def generate_pdf(image_paths, pdf_path, compress=False, title='', cover_image_pa
                 y2 = margin + footer_height
                 
                 c.drawImage(ImageReader(img2), x2, y2, width=new_width2, height=new_height2)
-                
-                # Clean up temp file if needed
-                if compress and img2_path.endswith("_compressed.jpg"):
-                    try:
-                        os.remove(img2_path)
-                    except:
-                        pass
             
             # Add page number at bottom center
             c.setFont("Helvetica", 10)
-            total_pages = (len(image_paths) + 1) // 2
-            total_pages_with_cover = total_pages + (1 if cover_image_path and os.path.exists(cover_image_path) else 0)
             page_text = f"Page {page_num_with_cover} of {total_pages_with_cover}"
             text_width = c.stringWidth(page_text, "Helvetica", 10)
             c.drawString((width - text_width) / 2, margin + 5, page_text)
@@ -318,9 +322,27 @@ def generate_pdf(image_paths, pdf_path, compress=False, title='', cover_image_pa
             if i + 2 < len(image_paths):
                 c.showPage()
         
+        # Add empty pages if needed to meet the specified page count
+        for j in range(total_actual_pages, total_pages_to_generate):
+            # Start a new empty page
+            c.showPage()
+            
+            # Add header with the page title (on empty pages too)
+            c.setFont("Helvetica-Bold", 12)
+            header_text = f"{title}"
+            text_width = c.stringWidth(header_text, "Helvetica-Bold", 12)
+            c.drawString(margin + (usable_width - text_width) / 2, height - margin - 15, header_text)
+            
+            # Add page number at bottom center for empty pages too
+            c.setFont("Helvetica", 10)
+            empty_page_num = j + 1
+            page_text = f"Page {empty_page_num} of {total_pages_with_cover}"
+            text_width = c.stringWidth(page_text, "Helvetica", 10)
+            c.drawString((width - text_width) / 2, margin + 5, page_text)
+        
         # Save the PDF
         c.save()
-        print(f"Created PDF: {pdf_path}")
+        print(f"Created PDF: {pdf_path} with {total_pages_to_generate} total pages")
         
     except Exception as e:
         print(f"Error generating PDF: {e}")
@@ -330,8 +352,9 @@ def main():
     parser = argparse.ArgumentParser(description='Generate wall tile visualizations from JSON config.')
     parser.add_argument('config_file', help='Path to the JSON configuration file')
     parser.add_argument('--pdf', action='store_true', help='Generate a PDF of all visualizations')
-    parser.add_argument('--mini', action='store_true', help='Use compression to minimize the PDF size')
     parser.add_argument('--cover', help='Path to the cover image to use as the first page of the PDF')
+    parser.add_argument('--print', nargs='?', const=None, type=int, metavar='PAGE_COUNT',
+                        help='Generate a print-ready PDF with embedded fonts. Optional: specify total page count.')
     args = parser.parse_args()
     
     try:
@@ -343,21 +366,34 @@ def main():
         generated_images = create_wall_visualization(config)
         
         # If the pdf flag is set, generate a PDF with all the images
-        if args.pdf and generated_images:
+        if (args.pdf or args.print is not None) and generated_images:
             # Create PDF filename based on the input JSON filename
             config_path = pathlib.Path(args.config_file)
             base_name = config_path.stem.replace('visualize-wall-', '')
+            pdf_path = f"./out/visualize-wall-{base_name}.pdf"
             
-            # Add '_mini' to the filename if --mini flag is used
-            if args.mini:
-                pdf_path = f"./out/visualize-wall-{base_name}_mini.pdf"
-            else:
-                pdf_path = f"./out/visualize-wall-{base_name}.pdf"
+            # If print-ready option is set, modify the filename
+            if args.print is not None:
+                # Include page count in filename if specified
+                if args.print:
+                    pdf_path = f"./out/visualize-wall-{base_name}-print-{args.print}.pdf"
+                else:
+                    pdf_path = f"./out/visualize-wall-{base_name}-print.pdf"
             
-            # Pass the mini flag and cover image path to the PDF generator
+            # Pass the cover image path to the PDF generator
             pdf_header = config.get('title', 'Deltaware.in - Tiles Catalog - Whatsapp: 9940198130')
-            cover_image_path = args.cover if args.pdf and args.cover else None
-            generate_pdf(generated_images, pdf_path, compress=args.mini, title=pdf_header, cover_image_path=cover_image_path)
+            cover_image_path = args.cover
+            
+            # Generate PDF with the optional page count
+            generate_pdf(generated_images, pdf_path, title=pdf_header, 
+                        cover_image_path=cover_image_path, print_ready=(args.print is not None), 
+                        page_count=args.print)
+            
+            if args.print is not None:
+                print_message = f"Generated print-ready PDF with embedded fonts: {pdf_path}"
+                if args.print:
+                    print_message += f" (with {args.print} total pages)"
+                print(print_message)
         
     except FileNotFoundError:
         print(f"Error: Configuration file '{args.config_file}' not found")
