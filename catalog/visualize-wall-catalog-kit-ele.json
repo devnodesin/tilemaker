@@ -1,0 +1,138 @@
+{
+  "title": "Deltaware.in - Wall Tiles Catalog - Whatsapp: 9940198130",
+  "pages": [
+    {
+      "title": "1027",
+      "path": "./images/mc/wall/kitchen/",
+      "images": ["1027-1.jpg","1027-1.jpg", "1027-1.jpg", "1027-1.jpg"],
+      "images_random": ["1027-2.jpg", "1027-3.jpg"],
+      "footer": ["1027-1.jpg","1027-2.jpg","1027-3.jpg","1027-F.jpg"]
+    },
+    {
+      "title": "1049",
+      "path": "./images/mc/wall/kitchen/",
+      "images": ["1049-4.jpg","1049-4.jpg", "1049-4.jpg", "1049-4.jpg"],
+      "images_random": ["1049-2.jpg","1049-3.jpg"],
+      "footer": ["1049-1.jpg","1049-2.jpg","1049-3.jpg","1049-4.jpg","1049-F.jpg"]
+    },
+    {
+      "title": "1009",
+      "path": "./images/mc/wall/kitchen/",
+      "images": ["1009-1.jpg","1009-1.jpg", "1009-1.jpg", "1009-1.jpg"],
+      "images_random": ["1009-2.jpg", "1002-2.jpg"],
+      "footer": ["1009-1.jpg","1009-2.jpg", "1002-2.jpg","1009-F.jpg"]
+    },
+    {
+      "title": "1057",
+      "path": "./images/mc/wall/kitchen/",
+      "images": ["1057-6.jpg","1057-1.jpg", "1057-1.jpg", "1057-6.jpg"],
+      "images_random": ["1057-2.jpg", "1057-3.jpg"],
+      "footer": ["1057-1.jpg","1057-2.jpg", "1057-3.jpg", "1057-6.jpg","1057-F.jpg"]
+    },
+    {
+      "title": "1073",
+      "path": "./images/mc/wall/kitchen/",
+      "images": ["1073-3.jpg","1073-1.jpg", "1073-1.jpg", "1073-3.jpg"],
+      "images_random": ["1073-2.jpg"],
+      "footer": ["1073-1.jpg","1073-2.jpg", "1073-3.jpg","1073-F.jpg"]
+    },
+    {
+      "title": "1080",
+      "path": "./images/mc/wall/kitchen/",
+      "images": ["1080-1.jpg","1080-1.jpg", "1080-3.jpg", "1080-3.jpg"],
+      "images_random": ["1080-2.jpg"],
+      "footer": ["1080-1.jpg","1080-2.jpg","1080-3.jpg","1080-F.jpg"]
+    },
+    {
+      "title": "1081",
+      "path": "./images/mc/wall/kitchen/",
+      "images": ["1081-1.jpg","1081-1.jpg", "1081-1.jpg", "1081-1.jpg"],
+      "images_random": ["1081-2.jpg"],
+      "footer": ["1081-1.jpg","1081-2.jpg","1081-F.jpg"]
+    },
+    {
+      "title": "1089",
+      "path": "./images/mc/wall/kitchen/",
+      "images": ["1089-1.jpg","1089-1.jpg", "1089-1.jpg", "1089-1.jpg"],
+      "images_random": ["1089-2.jpg"],
+      "footer": ["1089-1.jpg","1089-2.jpg","1089-F.jpg"]
+    },
+    {
+      "title": "1090",
+      "path": "./images/mc/wall/kitchen/",
+      "images": ["1090-4.jpg","1090-1.jpg", "1090-1.jpg", "1090-4.jpg"],
+      "images_random": ["1090-2.jpg","1090-3.jpg"],
+      "footer": ["1090-1.jpg","1090-2.jpg","1090-3.jpg","1090-4.jpg","1090-F.jpg"]
+    },
+    {
+      "title": "1102",
+      "path": "./images/mc/wall/kitchen/",
+      "images": ["1102-3.jpg","1102-3.jpg", "1102-3.jpg", "1102-3.jpg"],
+      "images_random": ["1102-2.jpg"],
+      "footer": ["1102-1.jpg","1102-2.jpg","1102-3.jpg","1102-F.jpg"]
+    },
+    {
+      "title": "1104",
+      "path": "./images/mc/wall/kitchen/",
+      "images": ["1104-1.jpg","1104-1.jpg", "1104-1.jpg", "1104-1.jpg"],
+      "images_random": ["1104-2.jpg","1104-3.jpg"],
+      "footer": ["1104-1.jpg","1104-2.jpg","1104-3.jpg"]
+    },
+    {
+      "title": "1801",
+      "path": "./images/mc/wall/kitchen/",
+      "images": ["1801-1.jpg","1801-1.jpg", "1801-1.jpg", "1801-1.jpg"],
+      "images_random": ["1801-2.jpg","1801-3.jpg"],
+      "footer": ["1801-1.jpg","1801-2.jpg","1801-3.jpg"]
+    },
+    {
+      "title": "1983",
+      "path": "./images/mc/wall/kitchen/",
+      "images": ["1983-1.jpg","1983-1.jpg", "1983-1.jpg", "1983-1.jpg"],
+      "images_random": ["1983-2.jpg","1983-3.jpg"],
+      "footer": ["1983-1.jpg","1983-2.jpg","1983-3.jpg","1983-F.jpg"]
+    },
+{
+      "title": "EL100",
+      "path": "./images/mc/wall/elevation/",
+      "images": ["100.jpg","100.jpg", "100.jpg", "100.jpg"],
+      "footer": ["100.jpg"]
+    },
+    {
+      "title": "EL102",
+      "path": "./images/mc/wall/elevation/",
+      "images": ["102.jpg","102.jpg", "102.jpg", "102.jpg"],
+      "footer": ["102.jpg"]
+    },
+    {
+      "title": "EL103",
+      "path": "./images/mc/wall/elevation/",
+      "images": ["103.jpg","103.jpg", "103.jpg", "103.jpg"],
+      "footer": ["103.jpg"]
+    },
+    {
+      "title": "EL104",
+      "path": "./images/mc/wall/elevation/",
+      "images": ["104.jpg","104.jpg", "104.jpg", "104.jpg"],
+      "footer": ["104.jpg"]
+    },
+    {
+      "title": "EL105",
+      "path": "./images/mc/wall/elevation/",
+      "images": ["105.jpg","105.jpg", "105.jpg", "105.jpg"],
+      "footer": ["105.jpg"]
+    },
+    {
+      "title": "EL106",
+      "path": "./images/mc/wall/elevation/",
+      "images": ["106.jpg","106.jpg", "106.jpg", "106.jpg"],
+      "footer": ["106.jpg"]
+    },
+    {
+      "title": "EL107",
+      "path": "./images/mc/wall/elevation/",
+      "images": ["107.jpg","107.jpg", "107.jpg", "107.jpg"],
+      "footer": ["107.jpg"]
+    }
+  ]
+}

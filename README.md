@@ -44,17 +44,16 @@ $ python visualize_floor.py --rows 20 --cols 20 --title "kitchen" --in_file ".\i
 ```bash
 $ python .\visualize_floor.py --json .\catalog\visualize-parking.json
 
-or 
+or
 
 $ python .\visualize_floor.py --json .\catalog\visualize-parking.json --pdf
 ```
 
-
-## Catalog Wall 
+## Catalog Wall
 
 ```bash
 python .\visualize_wall.py .\catalog\visualize-wall-bath.json --pdf --mini
-python .\visualize_wall.py .\catalog\visualize-wall-kitchen.json --pdf
-python .\visualize_wall.py .\catalog\visualize-wall-elevaton.json --pdf
-python .\visualize_wall.py .\catalog\visualize-wall-bath.json --pdf
+
+python .\visualize_wall.py .\catalog\visualize-wall-catalog-kit-ele.json --pdf --cover .\images\cover\yellow.jpg
+python .\visualize_wall.py .\catalog\visualize-wall-catalog.json --pdf --cover .\images\cover\yellow.jpg
 ```

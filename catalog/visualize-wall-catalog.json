@@ -1,5 +1,4 @@
 {
-  "output_pdf": "./out/parking-tiles-cat.pdf",
   "title": "Deltaware.in - Wall Tiles Catalog - Whatsapp: 9940198130",
   "pages": [
     {
@@ -171,47 +170,6 @@
       "path": "./images/mc/wall/row-3/",
       "images": ["2337-1.jpg","2337-2.jpg", "2337-2.jpg", "2337-3.jpg"],
       "footer": ["2337-1.jpg","2337-2.jpg", "2337-3.jpg", "2337-F.jpg"]
-    },{
-      "title": "EL100",
-      "path": "./images/mc/wall/elevation/",
-      "images": ["100.jpg","100.jpg", "100.jpg", "100.jpg"],
-      "footer": ["100.jpg"]
-    },
-    {
-      "title": "EL102",
-      "path": "./images/mc/wall/elevation/",
-      "images": ["102.jpg","102.jpg", "102.jpg", "102.jpg"],
-      "footer": ["102.jpg"]
-    },
-    {
-      "title": "EL103",
-      "path": "./images/mc/wall/elevation/",
-      "images": ["103.jpg","103.jpg", "103.jpg", "103.jpg"],
-      "footer": ["103.jpg"]
-    },
-    {
-      "title": "EL104",
-      "path": "./images/mc/wall/elevation/",
-      "images": ["104.jpg","104.jpg", "104.jpg", "104.jpg"],
-      "footer": ["104.jpg"]
-    },
-    {
-      "title": "EL105",
-      "path": "./images/mc/wall/elevation/",
-      "images": ["105.jpg","105.jpg", "105.jpg", "105.jpg"],
-      "footer": ["105.jpg"]
-    },
-    {
-      "title": "EL106",
-      "path": "./images/mc/wall/elevation/",
-      "images": ["106.jpg","106.jpg", "106.jpg", "106.jpg"],
-      "footer": ["106.jpg"]
-    },
-    {
-      "title": "EL107",
-      "path": "./images/mc/wall/elevation/",
-      "images": ["107.jpg","107.jpg", "107.jpg", "107.jpg"],
-      "footer": ["107.jpg"]
     }
   ]
 }

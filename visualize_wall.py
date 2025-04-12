@@ -10,8 +10,6 @@ from reportlab.lib.utils import ImageReader
 
 def create_wall_visualization(config):
     """Create wall tile visualizations based on the provided configuration."""
-    # Create output directory if it doesn't exist
-    os.makedirs(os.path.dirname(config['output_pdf']), exist_ok=True)
     
     # Create output directory for wall visualizations
     wall_output_dir = "./out/visual-wall"
@@ -168,7 +166,7 @@ def create_wall_visualization(config):
             
     return generated_images
 
-def generate_pdf(image_paths, pdf_path, compress=False, title=''):
+def generate_pdf(image_paths, pdf_path, compress=False, title='', cover_image_path=None):
     """Generate a PDF containing all the generated images (2 per page)."""
     try:
         # Create the PDF with US Letter (8.5" x 11") size
@@ -176,6 +174,38 @@ def generate_pdf(image_paths, pdf_path, compress=False, title=''):
         letter_size = (612, 792)  # Width: 8.5", Height: 11" in points
         c = canvas.Canvas(pdf_path, pagesize=letter_size)
         width, height = letter_size  # Use letter size dimensions
+        
+        # Add cover page if provided
+        if cover_image_path and os.path.exists(cover_image_path):
+            try:
+                cover_img = Image.open(cover_image_path)
+                
+                # Resize cover image to fit the page while maintaining aspect ratio
+                cover_img_width, cover_img_height = cover_img.size
+                img_ratio = cover_img_width / cover_img_height
+                
+                # Calculate dimensions to fill the page with margins
+                margin = 10
+                usable_width = width - (2 * margin)
+                usable_height = height - (2 * margin)
+                
+                # Determine the best fit dimensions
+                if img_ratio > usable_width / usable_height:  # Width-constrained
+                    new_width = usable_width
+                    new_height = new_width / img_ratio
+                else:  # Height-constrained
+                    new_height = usable_height
+                    new_width = new_height * img_ratio
+                
+                # Center the cover image on the page
+                x = margin + (usable_width - new_width) / 2
+                y = margin + (usable_height - new_height) / 2
+                
+                c.drawImage(ImageReader(cover_img), x, y, width=new_width, height=new_height)
+                c.showPage()  # Finish the cover page and start a new page
+                
+            except Exception as e:
+                print(f"Error processing cover image: {e}")
         
         # Define margins (10px on each side)
         margin = 10
@@ -193,7 +223,9 @@ def generate_pdf(image_paths, pdf_path, compress=False, title=''):
         
         # Process images two at a time
         for i in range(0, len(image_paths), 2):
+            # Calculate page number considering the cover page
             page_num = (i // 2) + 1
+            page_num_with_cover = page_num + (1 if cover_image_path and os.path.exists(cover_image_path) else 0)
             
             # Add header with the page title
             c.setFont("Helvetica-Bold", 12)
@@ -277,7 +309,8 @@ def generate_pdf(image_paths, pdf_path, compress=False, title=''):
             # Add page number at bottom center
             c.setFont("Helvetica", 10)
             total_pages = (len(image_paths) + 1) // 2
-            page_text = f"Page {page_num} of {total_pages}"
+            total_pages_with_cover = total_pages + (1 if cover_image_path and os.path.exists(cover_image_path) else 0)
+            page_text = f"Page {page_num_with_cover} of {total_pages_with_cover}"
             text_width = c.stringWidth(page_text, "Helvetica", 10)
             c.drawString((width - text_width) / 2, margin + 5, page_text)
             
@@ -298,6 +331,7 @@ def main():
     parser.add_argument('config_file', help='Path to the JSON configuration file')
     parser.add_argument('--pdf', action='store_true', help='Generate a PDF of all visualizations')
     parser.add_argument('--mini', action='store_true', help='Use compression to minimize the PDF size')
+    parser.add_argument('--cover', help='Path to the cover image to use as the first page of the PDF')
     args = parser.parse_args()
     
     try:
@@ -320,9 +354,10 @@ def main():
             else:
                 pdf_path = f"./out/visualize-wall-{base_name}.pdf"
             
-            # Pass the mini flag to the PDF generator
+            # Pass the mini flag and cover image path to the PDF generator
             pdf_header = config.get('title', 'Deltaware.in - Tiles Catalog - Whatsapp: 9940198130')
-            generate_pdf(generated_images, pdf_path, compress=args.mini, title=pdf_header)
+            cover_image_path = args.cover if args.pdf and args.cover else None
+            generate_pdf(generated_images, pdf_path, compress=args.mini, title=pdf_header, cover_image_path=cover_image_path)
         
     except FileNotFoundError:
         print(f"Error: Configuration file '{args.config_file}' not found")
