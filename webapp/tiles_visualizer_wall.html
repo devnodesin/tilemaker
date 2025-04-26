@@ -565,9 +565,9 @@
         }
 
         async function generateRoom() {
-            const roomWidth = 6; // Fixed width
-            const roomHeight = 7; // Fixed height
-            const roomLength = 8; // Fixed length
+            const ROOM_WIDTH = 6; // Fixed width
+            const ROOM_HEIGHT = 7; // Fixed height
+            const ROOM_LENGTH = 8; // Fixed length
             const ceilingColor = ceilingColorInput.value || '#ffffff';
             const wallColorHex = '#cccccc'; // This will be the grout color now
             const wallColor = new THREE.Color(wallColorHex).getHex();
@@ -596,7 +596,7 @@
             }
 
 
-            const geometry = new THREE.BoxGeometry(roomWidth, roomHeight, roomLength);
+            const geometry = new THREE.BoxGeometry(ROOM_WIDTH, ROOM_HEIGHT, ROOM_LENGTH);
 
             // Materials
             const defaultWallMaterial = new THREE.MeshStandardMaterial({ color: wallColor, side: THREE.BackSide });
@@ -613,7 +613,7 @@
                         textureLoader.load(event.target.result, (texture) => {
                             texture.wrapS = THREE.RepeatWrapping;
                             texture.wrapT = THREE.RepeatWrapping;
-                            texture.repeat.set(roomWidth / tileSize, roomLength / tileSize);
+                            texture.repeat.set(ROOM_WIDTH / tileSize, ROOM_LENGTH / tileSize);
                             floorMaterial.map = texture;
                             floorMaterial.color.set(0xffffff); // Show texture color
                             floorMaterial.needsUpdate = true;
@@ -634,15 +634,15 @@
 
             if (validWallTiles.length > 0) {
                 // Pass groutGap to generateWallTexture
-                texturePromises.push(generateWallTexture(roomWidth, roomHeight, validWallTiles, wallColorHex, groutGap).then(tex => {
+                texturePromises.push(generateWallTexture(ROOM_WIDTH, ROOM_HEIGHT, validWallTiles, wallColorHex, groutGap).then(tex => {
                     if (tex) backWallMaterial = new THREE.MeshStandardMaterial({ map: tex, side: THREE.BackSide, color: 0xffffff });
                 }).catch(err => console.error("Back wall texture gen error:", err)));
 
-                texturePromises.push(generateWallTexture(roomLength, roomHeight, validWallTiles, wallColorHex, groutGap).then(tex => {
+                texturePromises.push(generateWallTexture(ROOM_LENGTH, ROOM_HEIGHT, validWallTiles, wallColorHex, groutGap).then(tex => {
                      if (tex) leftWallMaterial = new THREE.MeshStandardMaterial({ map: tex, side: THREE.BackSide, color: 0xffffff });
                 }).catch(err => console.error("Left wall texture gen error:", err)));
 
-                texturePromises.push(generateWallTexture(roomLength, roomHeight, validWallTiles, wallColorHex, groutGap).then(tex => {
+                texturePromises.push(generateWallTexture(ROOM_LENGTH, ROOM_HEIGHT, validWallTiles, wallColorHex, groutGap).then(tex => {
                      if (tex) rightWallMaterial = new THREE.MeshStandardMaterial({ map: tex, side: THREE.BackSide, color: 0xffffff });
                 }).catch(err => console.error("Right wall texture gen error:", err)));
             }
@@ -657,7 +657,7 @@
 
 
             // Update camera initial state based on new room dimensions
-            camera.userData.initialLookAt = new THREE.Vector3(0, 0, -roomLength / 2);
+            camera.userData.initialLookAt = new THREE.Vector3(0, 0, -ROOM_LENGTH / 2);
             // Apply slider values to camera
             updateCameraZoom();
             updateCameraPan(); // Pan needs to be updated before tilt if it affects lookAt
