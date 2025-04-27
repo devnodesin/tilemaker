@@ -133,7 +133,7 @@
                     <div class="form-group">
                         <label for="brightness-slider" class="col-xs-6 control-label">Brightness: <span id="brightness-value">0.8</span></label>
                         <div class="col-xs-6">
-                            <input type="range" class="form-control" id="brightness-slider" min="0.1" max="2.0" step="0.1" value="0.8">
+                            <input type="range" class="form-control" id="brightness-slider" min="0.1" max="2.0" step="0.1" value="0.7">
                         </div>
                     </div>
                     <div class="form-group">
@@ -203,7 +203,7 @@
                 <div class="btn-group margin-bottom-10" role="group">
                     <button id="download-jpeg-btn" class="btn btn-success">Download JPEG</button>
                     <button id="animate-preview-btn" class="btn btn-info" type="button">Animate Preview</button>
-                    <button id="download-animation-btn" class="btn btn-warning" type="button">Download Animation</button>
+                    <button id="download-animation-btn" class="btn btn-warning" type="button">Download GIF</button>
                 </div>
                 <div id="output-container"></div>
             </div>
@@ -732,13 +732,16 @@
         let animationStepIndex = 0;
         let animationSteps = [];
         let animationOnFinish = null;
+        let animationStartTime = null;
+        let animationCurrentStep = null;
 
         function setupAnimationSteps() {
+            // Each step: { type, from, to, duration (ms) }
             animationSteps = [
-                { type: 'pan', from: 0, to: -2.0, step: -0.05, value: 0 },
-                { type: 'zoom', from: 1.0, to: 4.5, step: 0.05, value: 1.0 },
-                { type: 'pan', from: -2.0, to: 0.5, step: 0.05, value: -2.0 },
-                { type: 'zoom', from: 4.5, to: 2.0, step: -0.05, value: 4.5 }
+                { type: 'pan', from: 0, to: -2.0, duration: 1500 },
+                { type: 'zoom', from: 1.0, to: 4.5, duration: 1500 },
+                { type: 'pan', from: -2.0, to: 0.5, duration: 1500 },
+                { type: 'zoom', from: 4.5, to: 2.0, duration: 1500 }
             ];
         }
 
@@ -749,48 +752,49 @@
             updateCameraZoom();
         }
 
-        function animatePreviewStep() {
+        function animatePreviewStepSmooth(timestamp) {
             if (!animationActive) {
-                console.debug("Animation stopped or not active.");
+                animationStartTime = null;
+                animationCurrentStep = null;
                 return;
             }
             if (animationStepIndex >= animationSteps.length) {
-                console.debug("Animation finished.");
                 animationActive = false;
                 animationStepIndex = 0;
+                animationStartTime = null;
+                animationCurrentStep = null;
                 if (typeof animationOnFinish === "function") animationOnFinish();
                 return;
             }
-            const step = animationSteps[animationStepIndex];
-            let done = false;
+            if (!animationStartTime) {
+                animationStartTime = timestamp;
+                animationCurrentStep = animationSteps[animationStepIndex];
+            }
+            const step = animationCurrentStep;
+            const elapsed = timestamp - animationStartTime;
+            const t = Math.min(1, elapsed / step.duration);
+            // Ease in-out cubic
+            const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+            const value = step.from + (step.to - step.from) * ease;
+
             if (step.type === 'pan') {
-                step.value += step.step;
-                if ((step.step < 0 && step.value <= step.to) || (step.step > 0 && step.value >= step.to)) {
-                    step.value = step.to;
-                    done = true;
-                }
-                cameraPanSlider.value = step.value.toFixed(2);
+                cameraPanSlider.value = value.toFixed(3);
                 updateCameraPan();
-                console.debug(`Animating pan: ${step.value}`);
+                //console.debug(`Smooth pan: ${value}`);
             } else if (step.type === 'zoom') {
-                step.value += step.step;
-                if ((step.step < 0 && step.value <= step.to) || (step.step > 0 && step.value >= step.to)) {
-                    step.value = step.to;
-                    done = true;
-                }
-                cameraDepthSlider.value = step.value.toFixed(2);
+                cameraDepthSlider.value = value.toFixed(3);
                 updateCameraZoom();
-                console.debug(`Animating zoom: ${step.value}`);
+                //console.debug(`Smooth zoom: ${value}`);
             }
             renderer.render(scene, camera);
-            if (done) {
+
+            if (t < 1) {
+                animationRequestId = requestAnimationFrame(animatePreviewStepSmooth);
+            } else {
                 animationStepIndex++;
-                console.debug("Step finished, moving to next step.");
-            }
-            if (animationActive) {
-                setTimeout(() => {
-                    requestAnimationFrame(animatePreviewStep);
-                }, 10);
+                animationStartTime = null;
+                animationCurrentStep = null;
+                animationRequestId = requestAnimationFrame(animatePreviewStepSmooth);
             }
         }
 
@@ -804,12 +808,10 @@
             animationStepIndex = 0;
             animationActive = true;
             animationOnFinish = onFinish || null;
-            animationSteps[0].value = animationSteps[0].from;
-            animationSteps[1].value = animationSteps[1].from;
-            animationSteps[2].value = animationSteps[2].from;
-            animationSteps[3].value = animationSteps[3].from;
+            animationStartTime = null;
+            animationCurrentStep = null;
             resetAnimationSliders();
-            animationRequestId = requestAnimationFrame(animatePreviewStep);
+            animationRequestId = requestAnimationFrame(animatePreviewStepSmooth);
         }
 
         function stopAnimationPreview() {
@@ -818,6 +820,8 @@
             animationRequestId = null;
             animationStepIndex = 0;
             animationOnFinish = null;
+            animationStartTime = null;
+            animationCurrentStep = null;
             console.debug("Animation preview stopped.");
         }
 
@@ -826,9 +830,7 @@
             console.debug("Starting GIF animation export.");
             setupAnimationSteps();
 
-            // Always use local worker script for best compatibility
             let workerScriptUrl = 'gif.worker.js';
-
             let gif = new GIF({
                 workers: 2,
                 quality: 10,
@@ -840,6 +842,30 @@
             let steps = animationSteps.map(s => Object.assign({}, s));
             let frameCount = 0;
 
+            // Progress spinner setup
+            const downloadBtn = document.getElementById('download-animation-btn');
+            if (downloadBtn) {
+                downloadBtn.disabled = true;
+                downloadBtn.innerHTML = `<span class="glyphicon glyphicon-refresh spinning"></span> Rendering...`;
+            }
+
+            // Add spinner CSS if not present
+            if (!document.getElementById('gif-spinner-style')) {
+                const style = document.createElement('style');
+                style.id = 'gif-spinner-style';
+                style.innerHTML = `.spinning { animation: spin 1s linear infinite; }
+                @keyframes spin { 100% { transform: rotate(360deg); } }`;
+                document.head.appendChild(style);
+            }
+
+            steps.forEach((step) => {
+                if (typeof step.from === 'number') {
+                    step.value = step.from;
+                    let totalFrames = 60;
+                    step.step = (step.to - step.from) / totalFrames;
+                }
+            });
+
             function renderAndAddFrame(cb) {
                 renderer.render(scene, camera);
                 gif.addFrame(renderer.domElement, {copy: true, delay: 16});
@@ -849,6 +875,12 @@
             function nextFrame() {
                 if (stepIndex >= steps.length) {
                     console.debug("GIF animation steps finished, rendering GIF...");
+                    gif.on('progress', function(p) {
+                        if (downloadBtn) {
+                            let percent = Math.round(p * 100);
+                            downloadBtn.innerHTML = `<span class="glyphicon glyphicon-refresh spinning"></span> Saving... ${percent}%`;
+                        }
+                    });
                     gif.on('finished', function(blob) {
                         let url = URL.createObjectURL(blob);
                         let a = document.createElement('a');
@@ -856,12 +888,22 @@
                         a.download = 'room_animation.gif';
                         a.click();
                         console.debug("GIF download triggered.");
+                        if (downloadBtn) {
+                            downloadBtn.disabled = false;
+                            downloadBtn.innerHTML = 'Download GIF';
+                        }
                     });
                     gif.render();
                     return;
                 }
                 let step = steps[stepIndex];
                 let done = false;
+                if (typeof step.value !== 'number' || typeof step.step !== 'number' || isNaN(step.value) || isNaN(step.step)) {
+                    console.error(`[GIF] Invalid step value or step size at index ${stepIndex}. Skipping step.`);
+                    stepIndex++;
+                    setTimeout(nextFrame, 0);
+                    return;
+                }
                 if (step.type === 'pan') {
                     step.value += step.step;
                     if ((step.step < 0 && step.value <= step.to) || (step.step > 0 && step.value >= step.to)) {
@@ -887,10 +929,6 @@
                     setTimeout(nextFrame, 0);
                 });
             }
-            steps[0].value = steps[0].from;
-            steps[1].value = steps[1].from;
-            steps[2].value = steps[2].from;
-            steps[3].value = steps[3].from;
             resetAnimationSliders();
             nextFrame();
         }
@@ -971,12 +1009,8 @@
                     console.debug("Download Animation button clicked.");
                     if (animationActive) stopAnimationPreview();
                     this.disabled = true;
-                    this.textContent = "Rendering...";
+                    this.innerHTML = `<span class="glyphicon glyphicon-refresh spinning"></span> Rendering...`;
                     downloadAnimationGIF();
-                    setTimeout(() => {
-                        this.disabled = false;
-                        this.textContent = "Download Animation";
-                    }, 4000);
                 });
             }
 
