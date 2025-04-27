@@ -200,7 +200,11 @@
             <!-- Output Container -->
             <div class="col-md-8 output-column">
                 <h3>Output</h3>
-                <button id="download-jpeg-btn" class="btn btn-success margin-bottom-10">Download JPEG</button>
+                <div class="btn-group margin-bottom-10" role="group">
+                    <button id="download-jpeg-btn" class="btn btn-success">Download JPEG</button>
+                    <button id="animate-preview-btn" class="btn btn-info" type="button">Animate Preview</button>
+                    <button id="download-animation-btn" class="btn btn-warning" type="button">Download Animation</button>
+                </div>
                 <div id="output-container"></div>
             </div>
         </div>
@@ -214,7 +218,9 @@
     <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
     <!-- Bootstrap 3.5 JS -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-
+    <!-- Add gif.js library for GIF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
     <script>
         let scene, camera, renderer, roomMesh;
         let selectedFloorFile = null;
@@ -720,30 +726,176 @@
                 });
         }
 
-        // Generic Drag and Drop Setup
-        function setupDropZone(zone, inputElement, fileHandler) {
-            zone.addEventListener('click', () => inputElement.click());
-            zone.addEventListener('dragover', (event) => { event.preventDefault(); zone.classList.add('drag-over'); });
-            zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
-            zone.addEventListener('drop', (event) => {
-                event.preventDefault();
-                zone.classList.remove('drag-over');
-                const file = event.dataTransfer.files[0];
-                if (file && file.type.startsWith('image/')) {
-                    // Update the input's files list to be consistent
-                    const dataTransfer = new DataTransfer();
-                    dataTransfer.items.add(file);
-                    inputElement.files = dataTransfer.files;
-                    // Call the specific handler
-                    fileHandler(file);
-                } else if (file) {
-                    alert("Please drop an image file.");
-                }
-            });
+        // --- Animation Logic ---
+        let animationActive = false;
+        let animationRequestId = null;
+        let animationStepIndex = 0;
+        let animationSteps = [];
+        let animationOnFinish = null;
+
+        function setupAnimationSteps() {
+            animationSteps = [
+                { type: 'pan', from: 0, to: -2.0, step: -0.05, value: 0 },
+                { type: 'zoom', from: 1.0, to: 4.5, step: 0.05, value: 1.0 },
+                { type: 'pan', from: -2.0, to: 0.5, step: 0.05, value: -2.0 },
+                { type: 'zoom', from: 4.5, to: 2.0, step: -0.05, value: 4.5 }
+            ];
         }
 
+        function resetAnimationSliders() {
+            cameraPanSlider.value = 0;
+            cameraDepthSlider.value = 1.0;
+            updateCameraPan();
+            updateCameraZoom();
+        }
 
-        // --- Event Listeners ---
+        function animatePreviewStep() {
+            if (!animationActive) {
+                console.debug("Animation stopped or not active.");
+                return;
+            }
+            if (animationStepIndex >= animationSteps.length) {
+                console.debug("Animation finished.");
+                animationActive = false;
+                animationStepIndex = 0;
+                if (typeof animationOnFinish === "function") animationOnFinish();
+                return;
+            }
+            const step = animationSteps[animationStepIndex];
+            let done = false;
+            if (step.type === 'pan') {
+                step.value += step.step;
+                if ((step.step < 0 && step.value <= step.to) || (step.step > 0 && step.value >= step.to)) {
+                    step.value = step.to;
+                    done = true;
+                }
+                cameraPanSlider.value = step.value.toFixed(2);
+                updateCameraPan();
+                console.debug(`Animating pan: ${step.value}`);
+            } else if (step.type === 'zoom') {
+                step.value += step.step;
+                if ((step.step < 0 && step.value <= step.to) || (step.step > 0 && step.value >= step.to)) {
+                    step.value = step.to;
+                    done = true;
+                }
+                cameraDepthSlider.value = step.value.toFixed(2);
+                updateCameraZoom();
+                console.debug(`Animating zoom: ${step.value}`);
+            }
+            renderer.render(scene, camera);
+            if (done) {
+                animationStepIndex++;
+                console.debug("Step finished, moving to next step.");
+            }
+            if (animationActive) {
+                setTimeout(() => {
+                    requestAnimationFrame(animatePreviewStep);
+                }, 10);
+            }
+        }
+
+        function startAnimationPreview(onFinish) {
+            if (animationActive) {
+                console.debug("Animation already active.");
+                return;
+            }
+            console.debug("Starting animation preview.");
+            setupAnimationSteps();
+            animationStepIndex = 0;
+            animationActive = true;
+            animationOnFinish = onFinish || null;
+            animationSteps[0].value = animationSteps[0].from;
+            animationSteps[1].value = animationSteps[1].from;
+            animationSteps[2].value = animationSteps[2].from;
+            animationSteps[3].value = animationSteps[3].from;
+            resetAnimationSliders();
+            animationRequestId = requestAnimationFrame(animatePreviewStep);
+        }
+
+        function stopAnimationPreview() {
+            animationActive = false;
+            if (animationRequestId) cancelAnimationFrame(animationRequestId);
+            animationRequestId = null;
+            animationStepIndex = 0;
+            animationOnFinish = null;
+            console.debug("Animation preview stopped.");
+        }
+
+        // --- GIF Export ---
+        function downloadAnimationGIF() {
+            console.debug("Starting GIF animation export.");
+            setupAnimationSteps();
+
+            // Always use local worker script for best compatibility
+            let workerScriptUrl = 'gif.worker.js';
+
+            let gif = new GIF({
+                workers: 2,
+                quality: 10,
+                width: renderer.domElement.width,
+                height: renderer.domElement.height,
+                workerScript: workerScriptUrl
+            });
+            let stepIndex = 0;
+            let steps = animationSteps.map(s => Object.assign({}, s));
+            let frameCount = 0;
+
+            function renderAndAddFrame(cb) {
+                renderer.render(scene, camera);
+                gif.addFrame(renderer.domElement, {copy: true, delay: 16});
+                cb();
+            }
+
+            function nextFrame() {
+                if (stepIndex >= steps.length) {
+                    console.debug("GIF animation steps finished, rendering GIF...");
+                    gif.on('finished', function(blob) {
+                        let url = URL.createObjectURL(blob);
+                        let a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'room_animation.gif';
+                        a.click();
+                        console.debug("GIF download triggered.");
+                    });
+                    gif.render();
+                    return;
+                }
+                let step = steps[stepIndex];
+                let done = false;
+                if (step.type === 'pan') {
+                    step.value += step.step;
+                    if ((step.step < 0 && step.value <= step.to) || (step.step > 0 && step.value >= step.to)) {
+                        step.value = step.to;
+                        done = true;
+                    }
+                    cameraPanSlider.value = step.value.toFixed(2);
+                    updateCameraPan();
+                    console.debug(`[GIF] Animating pan: ${step.value}`);
+                } else if (step.type === 'zoom') {
+                    step.value += step.step;
+                    if ((step.step < 0 && step.value <= step.to) || (step.step > 0 && step.value >= step.to)) {
+                        step.value = step.to;
+                        done = true;
+                    }
+                    cameraDepthSlider.value = step.value.toFixed(2);
+                    updateCameraZoom();
+                    console.debug(`[GIF] Animating zoom: ${step.value}`);
+                }
+                renderAndAddFrame(() => {
+                    frameCount++;
+                    if (done) stepIndex++;
+                    setTimeout(nextFrame, 0);
+                });
+            }
+            steps[0].value = steps[0].from;
+            steps[1].value = steps[1].from;
+            steps[2].value = steps[2].from;
+            steps[3].value = steps[3].from;
+            resetAnimationSliders();
+            nextFrame();
+        }
+
+        // --- Event Listeners for Animation ---
         document.addEventListener('DOMContentLoaded', () => {
             // Theme Initialization Removed
             /*
@@ -792,7 +944,65 @@
             // Initial Setup Calls
             updateGroutGap(); // Set initial grout gap value display and variable
             generateRoom(); // Initial Render (will use initial grout gap)
+
+            // Ensure buttons are connected after DOM is loaded
+            const animatePreviewBtn = document.getElementById('animate-preview-btn');
+            const downloadAnimationBtn = document.getElementById('download-animation-btn');
+
+            if (animatePreviewBtn) {
+                animatePreviewBtn.addEventListener('click', function() {
+                    console.debug("Animate Preview button clicked.");
+                    if (animationActive) {
+                        stopAnimationPreview();
+                        this.textContent = "Animate Preview";
+                    } else {
+                        this.textContent = "Stop Animation";
+                        startAnimationPreview(() => {
+                            animationActive = false;
+                            this.textContent = "Animate Preview";
+                            console.debug("Animation preview completed.");
+                        });
+                    }
+                });
+            }
+
+            if (downloadAnimationBtn) {
+                downloadAnimationBtn.addEventListener('click', function() {
+                    console.debug("Download Animation button clicked.");
+                    if (animationActive) stopAnimationPreview();
+                    this.disabled = true;
+                    this.textContent = "Rendering...";
+                    downloadAnimationGIF();
+                    setTimeout(() => {
+                        this.disabled = false;
+                        this.textContent = "Download Animation";
+                    }, 4000);
+                });
+            }
+
         });
+
+        // --- Drag and Drop Setup ---
+        function setupDropZone(zone, inputElement, fileHandler) {
+            zone.addEventListener('click', () => inputElement.click());
+            zone.addEventListener('dragover', (event) => { event.preventDefault(); zone.classList.add('drag-over'); });
+            zone.addEventListener('dragleave', () => zone.classList.remove('drag-over'));
+            zone.addEventListener('drop', (event) => {
+                event.preventDefault();
+                zone.classList.remove('drag-over');
+                const file = event.dataTransfer.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    // Update the input's files list to be consistent
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(file);
+                    inputElement.files = dataTransfer.files;
+                    // Call the specific handler
+                    fileHandler(file);
+                } else if (file) {
+                    alert("Please drop an image file.");
+                }
+            });
+        }
 
     </script>
 </body>
