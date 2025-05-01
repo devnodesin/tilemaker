@@ -18,10 +18,15 @@
   <div id="form-container" class="container my-4">
     <div class="d-flex align-items-center gap-2">
       <button id="prev-model" class="btn btn-secondary">Prev</button>
-      <select id="model-select" class="form-select w-auto">
-        <option selected>Model</option>
-        <!-- Add more <option> elements for other models as needed -->
-      </select>
+      <div class="dropdown">
+        <button class="btn btn-outline-light dropdown-toggle d-flex align-items-center" type="button" id="modelDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+          <img id="model-preview-img" src="" alt="Preview" style="width:32px;height:32px;object-fit:cover;margin-right:8px;display:none;">
+          <span id="model-preview-name">Model</span>
+        </button>
+        <ul class="dropdown-menu" id="model-dropdown-list" aria-labelledby="modelDropdownBtn" style="max-height:300px;overflow:auto;">
+          <!-- Model items will be populated here -->
+        </ul>
+      </div>
       <button id="next-model" class="btn btn-secondary">Next</button>
       <select id="camera-angle-select" class="form-select w-auto">
         <option value="15" selected>Front View</option>
@@ -46,6 +51,7 @@
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     document.addEventListener('DOMContentLoaded', function () {
       let scene, camera, renderer;
@@ -62,6 +68,10 @@
       let CAMERA_ANGLE = 15;
       let groutSpace = 0.02;
       let tileMeshes = [];
+      let models = [];
+      let selectedModelIdx = 0;
+      let loadedTileTextures = null; // Will be array if rotated, else single texture
+      let loadedTileTextureSrc = null;
 
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x181818);
@@ -105,25 +115,94 @@
         metalness: 0.1
       });
 
-      function createTiles(tileTexture) {
+      // Model dropdown logic
+      function fetchModels() {
+        fetch('models.json')
+          .then(res => res.json())
+          .then(data => {
+            models = data;
+            populateModelDropdown();
+            selectModel(0);
+          });
+      }
+
+      function populateModelDropdown() {
+        const dropdownList = document.getElementById('model-dropdown-list');
+        dropdownList.innerHTML = '';
+        models.forEach((model, idx) => {
+          const modelName = model.file.replace(/\.[^/.]+$/, ''); // Remove file extension
+          const li = document.createElement('li');
+          li.innerHTML = `
+        <a href="#" class="dropdown-item d-flex align-items-center" data-idx="${idx}">
+          <img src="${model.path + model.file}" style="width:32px;height:32px;object-fit:cover;margin-right:8px;">
+          <span>${modelName}</span>
+        </a>
+          `;
+          dropdownList.appendChild(li);
+        });
+        // Dropdown item click
+        dropdownList.querySelectorAll('.dropdown-item').forEach(item => {
+          item.addEventListener('click', function(e) {
+        e.preventDefault();
+        selectModel(parseInt(this.getAttribute('data-idx')));
+          });
+        });
+      }
+
+      function selectModel(idx) {
+        selectedModelIdx = idx;
+        const model = models[idx];
+        // Update preview
+        const img = document.getElementById('model-preview-img');
+        img.src = model.path + model.file;
+        img.style.display = '';
+        const modelName = model.file.replace(/\.[^/.]+$/, ''); // Remove file extension
+        document.getElementById('model-preview-name').textContent = modelName;
+        // Load tile texture(s)
+        loadTileTextures(model);
+      }
+
+      document.getElementById('prev-model').addEventListener('click', function() {
+        if (!models.length) return;
+        selectedModelIdx = (selectedModelIdx - 1 + models.length) % models.length;
+        selectModel(selectedModelIdx);
+      });
+      document.getElementById('next-model').addEventListener('click', function() {
+        if (!models.length) return;
+        selectedModelIdx = (selectedModelIdx + 1) % models.length;
+        selectModel(selectedModelIdx);
+      });
+
+      function createTiles(tileTextures) {
         // Remove previous tiles
         tileMeshes.forEach(mesh => scene.remove(mesh));
         tileMeshes = [];
         for (let row = 0; row < TILE_ROWS; row++) {
           for (let col = 0; col < TILE_COLS; col++) {
             const geo = new THREE.PlaneGeometry(TILE_WIDTH, TILE_LENGTH, 1, 1);
-            const mat = new THREE.MeshStandardMaterial({
-              map: tileTexture,
-              roughness: 0.7,
-              metalness: 0.1,
-              color: 0xffffff
-            });
+            let mat;
+            if (Array.isArray(tileTextures)) {
+              // Use quadrant pattern
+              const quadrant = ((row % 2) << 1) | (col % 2);
+              mat = new THREE.MeshStandardMaterial({
+                map: tileTextures[quadrant],
+                roughness: 0.7,
+                metalness: 0.1,
+                color: 0xffffff
+              });
+            } else {
+              mat = new THREE.MeshStandardMaterial({
+                map: tileTextures,
+                roughness: 0.7,
+                metalness: 0.1,
+                color: 0xffffff
+              });
+            }
             mat.map.repeat.set(1, 1);
             mat.map.offset.set(0, 0);
 
             const mesh = new THREE.Mesh(geo, mat);
             mesh.rotation.x = -Math.PI / 2;
-            // Add grout space between tiles
             mesh.position.x = -ROOM_WIDTH / 2 + TILE_WIDTH / 2 + col * (TILE_WIDTH + groutSpace);
             mesh.position.z = ROOM_DEPTH / 2 - TILE_LENGTH / 2 - row * (TILE_LENGTH + groutSpace);
             mesh.position.y = 0.01;
@@ -133,19 +212,120 @@
         }
       }
 
-      let loadedTileTexture = null;
-      const textureLoader = new THREE.TextureLoader();
-      textureLoader.load('tiles.jpg', function(tileTexture) {
-        tileTexture.wrapS = THREE.RepeatWrapping;
-        tileTexture.wrapT = THREE.RepeatWrapping;
-        tileTexture.minFilter = THREE.LinearFilter;
-        tileTexture.magFilter = THREE.LinearFilter;
-        tileTexture.encoding = THREE.sRGBEncoding;
-        loadedTileTexture = tileTexture;
-        createTiles(tileTexture);
-        renderer.render(scene, camera);
+      function rotateTexture(texture, angleDeg) {
+        // Create a canvas, draw the image rotated, then make a new texture
+        const image = texture.image;
+        const size = Math.max(image.width, image.height);
+        const canvas = document.createElement('canvas');
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        ctx.save();
+        ctx.clearRect(0, 0, size, size);
+        ctx.translate(size / 2, size / 2);
+        ctx.rotate(angleDeg * Math.PI / 180);
+        ctx.drawImage(image, -image.width / 2, -image.height / 2, image.width, image.height);
+        ctx.restore();
+        const newTexture = new THREE.Texture(canvas);
+        newTexture.needsUpdate = true;
+        newTexture.wrapS = THREE.RepeatWrapping;
+        newTexture.wrapT = THREE.RepeatWrapping;
+        newTexture.minFilter = THREE.LinearFilter;
+        newTexture.magFilter = THREE.LinearFilter;
+        newTexture.encoding = THREE.sRGBEncoding;
+        return newTexture;
+      }
+
+      function loadTileTextures(model) {
+        // Prevent reloading same image
+        const src = model.path + model.file;
+        if (loadedTileTextureSrc === src && loadedTileTextures) {
+          createTiles(loadedTileTextures);
+          renderer.render(scene, camera);
+          return;
+        }
+        loadedTileTextureSrc = src;
+        loadedTileTextures = null;
+        const loader = new THREE.TextureLoader();
+        loader.load(src, function(texture) {
+          texture.wrapS = THREE.RepeatWrapping;
+          texture.wrapT = THREE.RepeatWrapping;
+          texture.minFilter = THREE.LinearFilter;
+          texture.magFilter = THREE.LinearFilter;
+          texture.encoding = THREE.sRGBEncoding;
+          if (model.rotate) {
+            // Wait for image to be loaded before rotating
+            if (texture.image && texture.image.complete) {
+              loadedTileTextures = [
+                texture,
+                rotateTexture(texture, 90),
+                rotateTexture(texture, 270),
+                rotateTexture(texture, 270)
+              ];
+              createTiles(loadedTileTextures);
+              renderer.render(scene, camera);
+            } else {
+              texture.image.onload = function() {
+                loadedTileTextures = [
+                  texture,
+                  rotateTexture(texture, 45),
+                  rotateTexture(texture, 0),
+                  rotateTexture(texture, 0)
+                ];
+                createTiles(loadedTileTextures);
+                renderer.render(scene, camera);
+              };
+            }
+          } else {
+            loadedTileTextures = texture;
+            createTiles(texture);
+            renderer.render(scene, camera);
+          }
+        });
+      }
+
+      // Grout space input
+      const groutInput = document.getElementById('grout-space');
+      groutInput.addEventListener('input', function() {
+        groutSpace = parseFloat(this.value) || 0;
+        if (loadedTileTextures) {
+          createTiles(loadedTileTextures);
+        }
       });
 
+      // Download JPEG button
+      document.getElementById('download-jpeg').addEventListener('click', function() {
+        renderer.render(scene, camera);
+        const link = document.createElement('a');
+        link.download = 'tiles-visualizer.jpg';
+        link.href = renderer.domElement.toDataURL('image/jpeg');
+        link.click();
+      });
+
+      // Camera angle select
+      const cameraAngleSelect = document.getElementById('camera-angle-select');
+      const cameraAngleSlider = document.getElementById('camera-angle-slider');
+      const cameraAngleValue = document.getElementById('camera-angle-value');
+
+      cameraAngleSelect.addEventListener('change', (event) => {
+        CAMERA_ANGLE = parseFloat(event.target.value);
+        setCameraAngle(CAMERA_ANGLE);
+        cameraAngleSlider.value = CAMERA_ANGLE;
+        cameraAngleValue.textContent = CAMERA_ANGLE + '°';
+      });
+
+      cameraAngleSlider.addEventListener('input', (event) => {
+        CAMERA_ANGLE = parseFloat(event.target.value);
+        setCameraAngle(CAMERA_ANGLE);
+        cameraAngleValue.textContent = CAMERA_ANGLE + '°';
+        if (CAMERA_ANGLE === 15) cameraAngleSelect.value = "15";
+        else if (CAMERA_ANGLE === 90) cameraAngleSelect.value = "90";
+        else cameraAngleSelect.value = "";
+      });
+
+      cameraAngleValue.textContent = CAMERA_ANGLE + '°';
+
+      // Wall and lights
       const wallGeo = new THREE.PlaneGeometry(ROOM_WIDTH, ROOM_HEIGHT);
       const wall = new THREE.Mesh(wallGeo, whiteMat);
       wall.position.z = -ROOM_DEPTH / 2;
@@ -174,51 +354,12 @@
       camera.aspect = 16 / 9;
       camera.updateProjectionMatrix();
 
-      // Grout space input
-      const groutInput = document.getElementById('grout-space');
-      groutInput.addEventListener('input', function() {
-        groutSpace = parseFloat(this.value) || 0;
-        if (loadedTileTexture) {
-          createTiles(loadedTileTexture);
-        }
-      });
-
-      // Download JPEG button
-      document.getElementById('download-jpeg').addEventListener('click', function() {
-        renderer.render(scene, camera);
-        const link = document.createElement('a');
-        link.download = 'tiles-visualizer.jpg';
-        link.href = renderer.domElement.toDataURL('image/jpeg');
-        link.click();
-      });
-
-      // Camera angle select
-      const cameraAngleSelect = document.getElementById('camera-angle-select');
-      const cameraAngleSlider = document.getElementById('camera-angle-slider');
-      const cameraAngleValue = document.getElementById('camera-angle-value');
-
-      // Sync slider and dropdown
-      cameraAngleSelect.addEventListener('change', (event) => {
-        CAMERA_ANGLE = parseFloat(event.target.value);
-        setCameraAngle(CAMERA_ANGLE);
-        cameraAngleSlider.value = CAMERA_ANGLE;
-        cameraAngleValue.textContent = CAMERA_ANGLE + '°';
-      });
-
-      cameraAngleSlider.addEventListener('input', (event) => {
-        CAMERA_ANGLE = parseFloat(event.target.value);
-        setCameraAngle(CAMERA_ANGLE);
-        cameraAngleValue.textContent = CAMERA_ANGLE + '°';
-        if (CAMERA_ANGLE === 15) cameraAngleSelect.value = "15";
-        else if (CAMERA_ANGLE === 90) cameraAngleSelect.value = "90";
-        else cameraAngleSelect.value = "";
-      });
-
-      cameraAngleValue.textContent = CAMERA_ANGLE + '°';
-
       renderer.setAnimationLoop(() => {
         renderer.render(scene, camera);
       });
+
+      // Start
+      fetchModels();
     });
   </script>
 </body>
