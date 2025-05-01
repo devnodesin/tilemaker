@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Floor and Back Wall - Three.js</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body, html {
+      height: 100%;
+    }
+    body {
+      min-height: 100vh;
+      background: #181818;
+    }
+  </style>
+</head>
+<body class="bg-dark text-light">
+  <div id="form-container" class="container my-4">
+    <div class="d-flex align-items-center gap-2">
+      <button id="prev-model" class="btn btn-secondary">Prev</button>
+      <select id="model-select" class="form-select w-auto">
+        <option selected>Model</option>
+        <!-- Add more <option> elements for other models as needed -->
+      </select>
+      <button id="next-model" class="btn btn-secondary">Next</button>
+      <select id="camera-angle-select" class="form-select w-auto">
+        <option value="15" selected>Front View</option>
+        <option value="90">Top View</option>
+      </select>
+    </div>
+    <!-- Optional Controls Row -->
+    <div id="optional-controls" class="d-flex align-items-center gap-2 mt-3">
+      <label for="camera-angle-slider" class="form-label mb-0">Camera Angle</label>
+      <input type="range" class="form-range w-auto" id="camera-angle-slider" min="-90" max="90" step="1" value="15" style="width:200px;">
+      <span id="camera-angle-value" style="min-width:40px;display:inline-block;">15°</span>
+    </div>
+  </div>
+  <div id="output-container" class="container my-4">
+    <div id="output" class="d-flex justify-content-center align-items-center" style="min-height:60vh;">
+      <!-- Three.js canvas will be appended here -->
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      let scene, camera, renderer;
+
+      const ROOM_WIDTH = 25;
+      const ROOM_DEPTH = 8;
+      const ROOM_HEIGHT = 4;
+      const TILE_WIDTH = 2;
+      const TILE_LENGTH = 1;
+      const TILE_COLS = Math.floor(ROOM_WIDTH / TILE_WIDTH);
+      const TILE_ROWS = Math.floor(ROOM_DEPTH / TILE_LENGTH);
+      const CAMERA_HEIGHT = ROOM_HEIGHT * 1.2;
+      const CAMERA_ZOOM = ROOM_DEPTH * 0.6;
+      let CAMERA_ANGLE = 15;
+
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x181818);
+
+      camera = new THREE.PerspectiveCamera(60, 16 / 9, 0.1, 100);
+      setCameraAngle(CAMERA_ANGLE);
+
+      function setCameraAngle(angle) {
+        const angleRad = THREE.MathUtils.degToRad(angle);
+        camera.position.set(
+          0,
+          CAMERA_HEIGHT + Math.sin(angleRad) * CAMERA_ZOOM,
+          Math.cos(angleRad) * CAMERA_ZOOM
+        );
+        camera.lookAt(0, 0, 0);
+      }
+
+      function get16by9Size() {
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+        let width = w, height = h;
+        if (w / h > 16 / 9) {
+          width = h * 16 / 9;
+          height = h;
+        } else {
+          width = w;
+          height = w * 9 / 16;
+        }
+        return { width: Math.round(width), height: Math.round(height) };
+      }
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      const { width, height } = get16by9Size();
+      renderer.setSize(width, height);
+      renderer.setClearColor(0x181818);
+      document.getElementById('output').appendChild(renderer.domElement);
+
+      const whiteMat = new THREE.MeshStandardMaterial({
+        color: 0xffffff,
+        roughness: 0.7,
+        metalness: 0.1
+      });
+
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.load('tiles.jpg', function(tileTexture) {
+        tileTexture.wrapS = THREE.RepeatWrapping;
+        tileTexture.wrapT = THREE.RepeatWrapping;
+        tileTexture.minFilter = THREE.LinearFilter;
+        tileTexture.magFilter = THREE.LinearFilter;
+        tileTexture.encoding = THREE.sRGBEncoding;
+
+        for (let row = 0; row < TILE_ROWS; row++) {
+          for (let col = 0; col < TILE_COLS; col++) {
+            const geo = new THREE.PlaneGeometry(TILE_WIDTH, TILE_LENGTH, 1, 1);
+            const mat = new THREE.MeshStandardMaterial({
+              map: tileTexture,
+              roughness: 0.7,
+              metalness: 0.1,
+              color: 0xffffff
+            });
+            mat.map.repeat.set(1, 1);
+            mat.map.offset.set(0, 0);
+
+            const mesh = new THREE.Mesh(geo, mat);
+            mesh.rotation.x = -Math.PI / 2;
+            mesh.position.x = -ROOM_WIDTH / 2 + TILE_WIDTH / 2 + col * TILE_WIDTH;
+            mesh.position.z = ROOM_DEPTH / 2 - TILE_LENGTH / 2 - row * TILE_LENGTH;
+            mesh.position.y = 0.01;
+            scene.add(mesh);
+          }
+        }
+        renderer.render(scene, camera);
+      });
+
+      const wallGeo = new THREE.PlaneGeometry(ROOM_WIDTH, ROOM_HEIGHT);
+      const wall = new THREE.Mesh(wallGeo, whiteMat);
+      wall.position.z = -ROOM_DEPTH / 2;
+      wall.position.y = ROOM_HEIGHT / 2;
+      scene.add(wall);
+
+      scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+      const dirLight = new THREE.DirectionalLight(0xffffff, 0.45);
+      dirLight.position.set(2, 8, 6);
+      dirLight.castShadow = true;
+      scene.add(dirLight);
+
+      const pointLight = new THREE.PointLight(0xffffff, 0.15, 20);
+      pointLight.position.set(0, 3.5, 3);
+      scene.add(pointLight);
+
+      window.addEventListener('resize', () => {
+        const { width, height } = get16by9Size();
+        camera.aspect = 16 / 9;
+        camera.updateProjectionMatrix();
+        renderer.setSize(width, height);
+        renderer.domElement.style.display = 'block';
+        renderer.domElement.style.margin = 'auto';
+      });
+
+      camera.aspect = 16 / 9;
+      camera.updateProjectionMatrix();
+
+      // Camera angle select
+      const cameraAngleSelect = document.getElementById('camera-angle-select');
+      const cameraAngleSlider = document.getElementById('camera-angle-slider');
+      const cameraAngleValue = document.getElementById('camera-angle-value');
+
+      // Sync slider and dropdown
+      cameraAngleSelect.addEventListener('change', (event) => {
+        CAMERA_ANGLE = parseFloat(event.target.value);
+        setCameraAngle(CAMERA_ANGLE);
+        cameraAngleSlider.value = CAMERA_ANGLE;
+        cameraAngleValue.textContent = CAMERA_ANGLE + '°';
+      });
+
+      cameraAngleSlider.addEventListener('input', (event) => {
+        CAMERA_ANGLE = parseFloat(event.target.value);
+        setCameraAngle(CAMERA_ANGLE);
+        cameraAngleValue.textContent = CAMERA_ANGLE + '°';
+        // Optionally, update dropdown if matches a preset
+        if (CAMERA_ANGLE === 15) cameraAngleSelect.value = "15";
+        else if (CAMERA_ANGLE === 90) cameraAngleSelect.value = "90";
+        else cameraAngleSelect.value = "";
+      });
+
+      cameraAngleValue.textContent = CAMERA_ANGLE + '°';
+
+      renderer.setAnimationLoop(() => {
+        renderer.render(scene, camera);
+      });
+    });
+  </script>
+</body>
+</html>
