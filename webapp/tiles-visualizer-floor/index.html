@@ -27,6 +27,11 @@
         <option value="15" selected>Front View</option>
         <option value="90">Top View</option>
       </select>
+      <!-- Grout Space input -->
+      <label for="grout-space" class="form-label mb-0 ms-2">Grout Space</label>
+      <input type="number" id="grout-space" class="form-control w-auto" value="0" min="0" max="2" step="0.01" style="width:80px;">
+      <!-- Download JPEG button -->
+      <button id="download-jpeg" class="btn btn-success ms-2">Download JPEG</button>
     </div>
     <!-- Optional Controls Row -->
     <div id="optional-controls" class="d-flex align-items-center gap-2 mt-3">
@@ -49,12 +54,14 @@
       const ROOM_DEPTH = 8;
       const ROOM_HEIGHT = 4;
       const TILE_WIDTH = 2;
-      const TILE_LENGTH = 1;
+      const TILE_LENGTH = 2;
       const TILE_COLS = Math.floor(ROOM_WIDTH / TILE_WIDTH);
       const TILE_ROWS = Math.floor(ROOM_DEPTH / TILE_LENGTH);
       const CAMERA_HEIGHT = ROOM_HEIGHT * 1.2;
       const CAMERA_ZOOM = ROOM_DEPTH * 0.6;
       let CAMERA_ANGLE = 15;
+      let groutSpace = 0.02;
+      let tileMeshes = [];
 
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x181818);
@@ -98,14 +105,10 @@
         metalness: 0.1
       });
 
-      const textureLoader = new THREE.TextureLoader();
-      textureLoader.load('tiles.jpg', function(tileTexture) {
-        tileTexture.wrapS = THREE.RepeatWrapping;
-        tileTexture.wrapT = THREE.RepeatWrapping;
-        tileTexture.minFilter = THREE.LinearFilter;
-        tileTexture.magFilter = THREE.LinearFilter;
-        tileTexture.encoding = THREE.sRGBEncoding;
-
+      function createTiles(tileTexture) {
+        // Remove previous tiles
+        tileMeshes.forEach(mesh => scene.remove(mesh));
+        tileMeshes = [];
         for (let row = 0; row < TILE_ROWS; row++) {
           for (let col = 0; col < TILE_COLS; col++) {
             const geo = new THREE.PlaneGeometry(TILE_WIDTH, TILE_LENGTH, 1, 1);
@@ -120,12 +123,26 @@
 
             const mesh = new THREE.Mesh(geo, mat);
             mesh.rotation.x = -Math.PI / 2;
-            mesh.position.x = -ROOM_WIDTH / 2 + TILE_WIDTH / 2 + col * TILE_WIDTH;
-            mesh.position.z = ROOM_DEPTH / 2 - TILE_LENGTH / 2 - row * TILE_LENGTH;
+            // Add grout space between tiles
+            mesh.position.x = -ROOM_WIDTH / 2 + TILE_WIDTH / 2 + col * (TILE_WIDTH + groutSpace);
+            mesh.position.z = ROOM_DEPTH / 2 - TILE_LENGTH / 2 - row * (TILE_LENGTH + groutSpace);
             mesh.position.y = 0.01;
             scene.add(mesh);
+            tileMeshes.push(mesh);
           }
         }
+      }
+
+      let loadedTileTexture = null;
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.load('tiles.jpg', function(tileTexture) {
+        tileTexture.wrapS = THREE.RepeatWrapping;
+        tileTexture.wrapT = THREE.RepeatWrapping;
+        tileTexture.minFilter = THREE.LinearFilter;
+        tileTexture.magFilter = THREE.LinearFilter;
+        tileTexture.encoding = THREE.sRGBEncoding;
+        loadedTileTexture = tileTexture;
+        createTiles(tileTexture);
         renderer.render(scene, camera);
       });
 
@@ -157,6 +174,24 @@
       camera.aspect = 16 / 9;
       camera.updateProjectionMatrix();
 
+      // Grout space input
+      const groutInput = document.getElementById('grout-space');
+      groutInput.addEventListener('input', function() {
+        groutSpace = parseFloat(this.value) || 0;
+        if (loadedTileTexture) {
+          createTiles(loadedTileTexture);
+        }
+      });
+
+      // Download JPEG button
+      document.getElementById('download-jpeg').addEventListener('click', function() {
+        renderer.render(scene, camera);
+        const link = document.createElement('a');
+        link.download = 'tiles-visualizer.jpg';
+        link.href = renderer.domElement.toDataURL('image/jpeg');
+        link.click();
+      });
+
       // Camera angle select
       const cameraAngleSelect = document.getElementById('camera-angle-select');
       const cameraAngleSlider = document.getElementById('camera-angle-slider');
@@ -174,7 +209,6 @@
         CAMERA_ANGLE = parseFloat(event.target.value);
         setCameraAngle(CAMERA_ANGLE);
         cameraAngleValue.textContent = CAMERA_ANGLE + '°';
-        // Optionally, update dropdown if matches a preset
         if (CAMERA_ANGLE === 15) cameraAngleSelect.value = "15";
         else if (CAMERA_ANGLE === 90) cameraAngleSelect.value = "90";
         else cameraAngleSelect.value = "";
