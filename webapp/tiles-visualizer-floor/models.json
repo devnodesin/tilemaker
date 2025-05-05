@@ -107,22 +107,22 @@
     {
         "path": "images/mc/parking/",
         "file": "14401.jpg",
-        "rotate": false
+        "rotate": true
     },
     {
         "path": "images/mc/parking/",
         "file": "14402.jpg",
-        "rotate": false
+        "rotate": true
     },
     {
         "path": "images/mc/parking/",
         "file": "14403.jpg",
-        "rotate": false
+        "rotate": true
     },
     {
         "path": "images/mc/parking/",
         "file": "14404.jpg",
-        "rotate": false
+        "rotate": true
     },
     {
         "path": "images/mc/parking/",
@@ -152,21 +152,21 @@
     {
         "path": "images/mc/parking/",
         "file": "14600.jpg",
-        "rotate": false
+        "rotate": true
     },
     {
         "path": "images/mc/parking/",
         "file": "14601.jpg",
-        "rotate": false
+        "rotate": true
     },
     {
         "path": "images/mc/parking/",
         "file": "14602.jpg",
-        "rotate": false
+        "rotate": true
     },
     {
         "path": "images/mc/parking/",
         "file": "14603.jpg",
-        "rotate": false
+        "rotate": true
     }
 ]

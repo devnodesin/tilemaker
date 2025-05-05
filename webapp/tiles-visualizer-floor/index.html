@@ -257,10 +257,10 @@
             // Wait for image to be loaded before rotating
             if (texture.image && texture.image.complete) {
               loadedTileTextures = [
-                texture,
-                rotateTexture(texture, 90),
-                rotateTexture(texture, 270),
-                rotateTexture(texture, 270)
+                rotateTexture(texture, -90),
+                rotateTexture(texture, 180),
+                rotateTexture(texture, 0),
+                rotateTexture(texture, 90)
               ];
               createTiles(loadedTileTextures);
               renderer.render(scene, camera);
