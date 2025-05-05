@@ -1,0 +1,145 @@
+{
+  "image_path": "./images/mc/parking",
+  "output_pdf": "out/parking-tiles-2.pdf",
+  "title": "Deltaware.in - Parking Tiles Catalog - Whatsapp: 9940198130",
+  "pages": [
+        [
+            {
+                "title": "603 BLUE",
+                "file": "14603.jpg"
+            },
+            {
+                "title": "602 COPPER",
+                "file": "14602.jpg"
+            },
+            {
+                "title": "601 BLACK",
+                "file": "14601.jpg"
+            },
+            {
+                "title": "600 BROWN",
+                "file": "14600.jpg"
+            },
+            {
+                "title": "505 GREY",
+                "file": "14505.jpg"
+            },
+            {
+                "title": "504 BLUE",
+                "file": "14504.jpg"
+            },
+            {
+                "title": "503 GREEN",
+                "file": "14503.jpg"
+            },
+            {
+                "title": "502 COPPER",
+                "file": "14502.jpg"
+            },
+            {
+                "title": "501 BLUE ORANGE",
+                "file": "14501.jpg"
+            },
+            {
+                "title": "404 BROWN",
+                "file": "14404.jpg"
+            },
+            {
+                "title": "403 BLUE",
+                "file": "14403.jpg"
+            },
+            {
+                "title": "402 COPER",
+                "file": "14402.jpg"
+            }
+        ],
+        [
+            {
+                "title": "401 GREY",
+                "file": "14401.jpg"
+            },
+            {
+                "title": "400 BLACK",
+                "file": "14400.jpg"
+            },
+            {
+                "title": "301 GREY",
+                "file": "14301.jpg"
+            },
+            {
+                "title": "300 COPPER",
+                "file": "14300.jpg"
+            },
+            {
+                "title": "204 COPPER",
+                "file": "14204.jpg"
+            },
+            {
+                "title": "203 BLACK",
+                "file": "14203.jpg"
+            },
+            {
+                "title": "202 SLATE",
+                "file": "14202.jpg"
+            },
+            {
+                "title": "201 BLUE",
+                "file": "14201.jpg"
+            },
+            {
+                "title": "200 BROWN",
+                "file": "14200.jpg"
+            },
+            {
+                "title": "107 MATT BROWN",
+                "file": "14107.jpg"
+            },
+            {
+                "title": "106 GREY STONE",
+                "file": "14106.jpg"
+            },
+            {
+                "title": "105 PLAIN IVORY",
+                "file": "14105.jpg"
+            }
+        ],
+        [
+            {
+                "title": "104 PLAIN COPPER",
+                "file": "14104.jpg"
+            },
+            {
+                "title": "103 PLAIN L.GREY",
+                "file": "14103.jpg"
+            },
+            {
+                "title": "102 PLAIN GREY",
+                "file": "14102.jpg"
+            },
+            {
+                "title": "101 FLOWER",
+                "file": "14101.jpg"
+            },
+            {
+                "title": "100 WOOD",
+                "file": "14100.jpg"
+            },
+            {
+                "title": "003 STRIPES D.GREY",
+                "file": "14003.jpg"
+            },
+            {
+                "title": "002 STRIPES DUAL BROWN",
+                "file": "14002.jpg"
+            },
+            {
+                "title": "001 STRIPES GREY",
+                "file": "14001.jpg"
+            },
+            {
+                "title": "000 STRIPES DUAL GREY",
+                "file": "14000.jpg"
+            }
+        ]
+    ]
+}

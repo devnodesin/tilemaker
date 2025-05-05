@@ -33,7 +33,7 @@ Product catalog created: out/product_catalog.pdf
 - Professional headers and page numbers
 
 ```bash
-$ python  make_catalog.py --config catalog/parking-tiles.json
+$ python  make_catalog.py --config .\catalog\parking-tiles-all.json
 Catalog generated: out/parking-tiles.pdf
 ```
 
