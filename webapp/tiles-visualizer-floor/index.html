@@ -103,7 +103,8 @@
         return { width: Math.round(width), height: Math.round(height) };
       }
 
-      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+      renderer.setPixelRatio(window.devicePixelRatio); // Improve rendering quality
       const { width, height } = get16by9Size();
       renderer.setSize(width, height);
       renderer.setClearColor(0x181818);
@@ -295,11 +296,28 @@
 
       // Download JPEG button
       document.getElementById('download-jpeg').addEventListener('click', function() {
+        // Render to a higher resolution for download
+        const exportWidth = 1920;
+        const exportHeight = 1080;
+        const originalSize = renderer.getSize(new THREE.Vector2());
+        const originalPixelRatio = renderer.getPixelRatio();
+
+        renderer.setPixelRatio(2); // Super-sample for better quality
+        renderer.setSize(exportWidth, exportHeight, false);
+        camera.aspect = exportWidth / exportHeight;
+        camera.updateProjectionMatrix();
         renderer.render(scene, camera);
+
         const link = document.createElement('a');
         link.download = 'tiles-visualizer.jpg';
-        link.href = renderer.domElement.toDataURL('image/jpeg');
+        link.href = renderer.domElement.toDataURL('image/jpeg', 0.95); // Higher quality JPEG
         link.click();
+
+        // Restore original renderer size and pixel ratio
+        renderer.setPixelRatio(originalPixelRatio);
+        renderer.setSize(originalSize.x, originalSize.y, false);
+        camera.aspect = 16 / 9;
+        camera.updateProjectionMatrix();
       });
 
       // Camera angle select
@@ -347,6 +365,7 @@
         camera.aspect = 16 / 9;
         camera.updateProjectionMatrix();
         renderer.setSize(width, height);
+        renderer.setPixelRatio(window.devicePixelRatio); // Keep quality on resize
         renderer.domElement.style.display = 'block';
         renderer.domElement.style.margin = 'auto';
       });
