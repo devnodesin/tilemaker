@@ -1,535 +1,714 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>3D Floor and Back Wall - Three.js</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  <style>
-    body, html {
-      height: 100%;
-    }
-    body {
-      min-height: 100vh;
-      background: #181818;
-    }
-  </style>
-</head>
-<body class="bg-dark text-light">
-  <div id="form-container" class="container my-4">
-    <div class="d-flex flex-wrap align-items-end gap-2">
-      <!-- Tile Model group -->
-      <div class="d-flex flex-column align-items-start">
-        <label class="form-label mb-1" style="font-size:0.95em;">Tile Model</label>
-        <div class="input-group">
-          <button id="prev-model" class="btn btn-outline-secondary" type="button" title="Previous">
-            <span class="bi bi-chevron-left"></span>
-          </button>
-          <div class="dropdown flex-grow-1">
-            <button class="btn btn-outline-light dropdown-toggle d-flex align-items-center w-100" type="button" id="modelDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
-              <img id="model-preview-img" src="" alt="Preview" style="width:32px;height:32px;object-fit:cover;margin-right:8px;display:none;">
-              <span id="model-preview-name">Model</span>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>3D Floor and Back Wall - Three.js</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
+    />
+    <style>
+      body,
+      html {
+        height: 100%;
+      }
+      body {
+        min-height: 100vh;
+        background: #181818;
+      }
+      /* Added for model preview image */
+      .model-preview-img {
+        width: 32px;
+        height: 32px;
+        object-fit: cover;
+        margin-right: 8px;
+        display: none;
+      }
+      /* Added for model dropdown image */
+      .model-dropdown-img {
+        width: 32px;
+        height: 32px;
+        object-fit: cover;
+        margin-right: 8px;
+      }
+      /* Added for output area */
+      .output-area {
+        min-height: 60vh;
+        position: relative;
+      }
+      .tile-thumbnail-img {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        margin: 10px auto 0 auto;
+        display: block;
+      }
+
+      
+    </style>
+  </head>
+  <body class="bg-dark text-light">
+    <div id="form-container" class="container my-4">
+      <div class="d-flex flex-wrap align-items-end gap-2">
+        <!-- Tile Model group -->
+        <div class="d-flex flex-column align-items-start">
+          <label class="form-label mb-1">Tile Model</label>
+          <div class="input-group">
+            <button
+              id="prev-model"
+              class="btn btn-outline-secondary"
+              type="button"
+              title="Previous"
+            >
+              <span class="bi bi-chevron-left"></span>
             </button>
-            <ul class="dropdown-menu w-100" id="model-dropdown-list" aria-labelledby="modelDropdownBtn" style="max-height:300px;overflow:auto;">
-              <!-- Model items will be populated here -->
-            </ul>
+            <div class="dropdown flex-grow-1">
+              <button
+                class="btn btn-outline-light dropdown-toggle d-flex align-items-center w-100"
+                type="button"
+                id="modelDropdownBtn"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                <img
+                  id="model-preview-img"
+                  src=""
+                  alt="Preview"
+                  class="model-preview-img"
+                />
+                <span id="model-preview-name">Model</span>
+              </button>
+              <ul
+                class="dropdown-menu w-100"
+                id="model-dropdown-list"
+                aria-labelledby="modelDropdownBtn"
+                style="max-height: 300px; overflow: auto"
+              >
+                <!-- Model items will be populated here -->
+              </ul>
+            </div>
+            <button
+              id="next-model"
+              class="btn btn-outline-secondary"
+              type="button"
+              title="Next"
+            >
+              <span class="bi bi-chevron-right"></span>
+            </button>
           </div>
-          <button id="next-model" class="btn btn-outline-secondary" type="button" title="Next">
-            <span class="bi bi-chevron-right"></span>
+        </div>
+        <!-- Grout Space -->
+        <div class="d-flex flex-column align-items-start">
+          <label for="grout-space" class="form-label mb-1">Grout Space</label>
+          <select id="grout-space" class="form-select w-auto">
+            <option value="0">0 mm</option>
+            <option value="0.01">1 mm</option>
+            <option value="0.02" selected>2 mm</option>
+            <option value="0.03">3 mm</option>
+            <option value="0.04">4 mm</option>
+            <option value="0.05">5 mm</option>
+          </select>
+        </div>
+        <!-- Camera Angle Slider -->
+        <div class="d-flex flex-column align-items-start">
+          <label for="camera-angle-slider" class="form-label mb-1"
+            >Camera Angle <span id="camera-angle-value">0°</span></label
+          >
+          <div class="d-flex align-items-center">
+            <input
+              type="range"
+              class="form-range w-auto"
+              id="camera-angle-slider"
+              min="0"
+              max="90"
+              step="1"
+              value="0"
+            />
+          </div>
+        </div>
+        <!-- Camera View -->
+        <div class="d-flex flex-column align-items-start">
+          <label for="camera-angle-select" class="form-label mb-1">View</label>
+          <select id="camera-angle-select" class="form-select w-auto">
+            <option value="0" selected>Front View</option>
+            <option value="90">Top View</option>
+          </select>
+        </div>
+        <!-- Download Button -->
+        <div class="d-flex flex-column align-items-start">
+          <label class="form-label mb-1">Download</label>
+          <button id="download-jpeg" class="btn btn-warning">
+            Download JPEG
           </button>
         </div>
       </div>
-      <!-- Grout Space -->
-      <div class="d-flex flex-column align-items-start">
-        <label for="grout-space" class="form-label mb-1">Grout Space</label>
-        <select id="grout-space" class="form-select w-auto" style="width:80px;">
-          <option value="0">0 mm</option>
-          <option value="0.01">1 mm</option>
-          <option value="0.02" selected>2 mm</option>
-          <option value="0.03">3 mm</option>
-          <option value="0.04">4 mm</option>
-          <option value="0.05">5 mm</option>
-        </select>
-      </div>
-      <!-- Camera Angle Slider -->
-      <div class="d-flex flex-column align-items-start">
-        <label for="camera-angle-slider" class="form-label mb-1">Camera Angle</label>
-        <div class="d-flex align-items-center">
-          <input type="range" class="form-range w-auto" id="camera-angle-slider" min="0" max="90" step="1" value="0" style="width:120px;">
-          <span id="camera-angle-value" style="min-width:40px;display:inline-block;">0°</span>
-        </div>
-      </div>
-      <!-- Camera View -->
-      <div class="d-flex flex-column align-items-start">
-        <label for="camera-angle-select" class="form-label mb-1">View</label>
-        <select id="camera-angle-select" class="form-select w-auto" style="width:120px;">
-          <option value="0" selected>Front View</option>
-          <option value="90">Top View</option>
-        </select>
-      </div>
-      <!-- Download Button -->
-      <div class="d-flex flex-column align-items-start">
-        <label class="form-label mb-1">Download</label>
-        <button id="download-jpeg" class="btn btn-warning">Download JPEG</button>
-      </div>
     </div>
-  </div>
-  <div id="output-container" class="container my-4">
-    <div id="output" class="d-flex justify-content-center align-items-center" style="min-height:60vh; position:relative;">
-      <!-- Three.js canvas will be appended here -->
-      <!-- Tile thumbnail will be injected here -->
-      <div id="tile-thumbnail-container" style="position:absolute; display:none; box-sizing:content-box;">
-        <!-- Bootstrap card for thumbnail -->
-        <div class="card shadow" style="width: 170px; background: #fff;">
-          <img id="tile-thumbnail" src="" alt="Tile Thumbnail" class="card-img-top" style="width: 150px; height: 150px; object-fit: cover; margin: 10px auto 0 auto; display: block;">
-          <div class="card-body p-2">
-            <h6 id="tile-thumbnail-label" class="card-title text-center mb-0" style="color:#222; white-space:nowrap; font-weight: 600;"></h6>
+    <div id="output-container" class="container my-4">
+      <div
+        id="output"
+        class="d-flex justify-content-center align-items-center output-area"
+      >
+        <!-- Three.js canvas will be appended here -->
+        <!-- Tile thumbnail will be injected here -->
+        <div id="tile-thumbnail-container">
+          <!-- Bootstrap card for thumbnail -->
+          <div class="card text-bg-light px-2 shadow">
+            <img
+              id="tile-thumbnail"
+              src=""
+              alt="Tile Thumbnail"
+              class="card-img-top tile-thumbnail-img"
+            />
+            <div class="card-body p-2">
+              <h6
+                id="tile-thumbnail-label"
+                class="card-title text-center text-dark fw-semibold mb-0"
+              ></h6>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      let scene, camera, renderer;
+    <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        let scene, camera, renderer;
 
-      const ROOM_WIDTH = 19, ROOM_DEPTH = 10, ROOM_HEIGHT = 3;
-      const TILE_WIDTH = 2, TILE_LENGTH = 2;
-      const TILE_COLS = Math.floor(ROOM_WIDTH / TILE_WIDTH);
-      const TILE_ROWS = Math.floor(ROOM_DEPTH / TILE_LENGTH);
-      const CAMERA_HEIGHT = ROOM_HEIGHT * 1.2, CAMERA_ZOOM = ROOM_DEPTH * 0.25;
-      let CAMERA_ANGLE = 0, GROUT_SPACE = 0.02;
+        const ROOM_WIDTH = 19,
+          ROOM_DEPTH = 10,
+          ROOM_HEIGHT = 3;
+        const TILE_WIDTH = 2,
+          TILE_LENGTH = 2;
+        const TILE_COLS = Math.floor(ROOM_WIDTH / TILE_WIDTH);
+        const TILE_ROWS = Math.floor(ROOM_DEPTH / TILE_LENGTH);
+        const CAMERA_HEIGHT = ROOM_HEIGHT * 1.2,
+          CAMERA_ZOOM = ROOM_DEPTH * 0.25;
+        let CAMERA_ANGLE = 0,
+          GROUT_SPACE = 0.02;
 
-      const IMAGE_WIDTH = 1080, IMAGE_LENGTH = 720;
+        const IMAGE_WIDTH = 1080,
+          IMAGE_LENGTH = 720;
 
-      let tileMeshes = [], models = [], selectedModelIdx = 0;
-      let loadedTileTextures = null, loadedTileTextureSrc = null;
+        let tileMeshes = [],
+          models = [],
+          selectedModelIdx = 0;
+        let loadedTileTextures = null,
+          loadedTileTextureSrc = null;
 
-      // --- Thumbnail global config ---
-      const THUMB_MARGIN_LEFT = 10;  // px, can be changed globally
-      const THUMB_MARGIN_BOTTOM = 50; // px, can be changed globally
-      const THUMB_PADDING = 5; // px, can be changed globally
-      const THUMB_SIZE = 150; // px, fixed thumbnail size
+        // --- Thumbnail global config ---
+        const THUMB_MARGIN_LEFT = 10; // px, can be changed globally
+        const THUMB_MARGIN_BOTTOM = 50; // px, can be changed globally
+        const THUMB_PADDING = 5; // px, can be changed globally
+        const THUMB_SIZE = 150; // px, fixed thumbnail size
 
-      scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x181818);
+        scene = new THREE.Scene();
+        scene.background = new THREE.Color(0x181818);
 
-      camera = new THREE.PerspectiveCamera(60, 16 / 9, 0.1, 100);
-      setCameraAngle(CAMERA_ANGLE);
+        camera = new THREE.PerspectiveCamera(60, 16 / 9, 0.1, 100);
+        setCameraAngle(CAMERA_ANGLE);
 
-      function setCameraAngle(angle) {
-        const angleRad = THREE.MathUtils.degToRad(angle);
-        camera.position.set(
-          0,
-          CAMERA_HEIGHT + Math.sin(angleRad) * CAMERA_ZOOM,
-          Math.cos(angleRad) * CAMERA_ZOOM
+        function setCameraAngle(angle) {
+          const angleRad = THREE.MathUtils.degToRad(angle);
+          camera.position.set(
+            0,
+            CAMERA_HEIGHT + Math.sin(angleRad) * CAMERA_ZOOM,
+            Math.cos(angleRad) * CAMERA_ZOOM
+          );
+          camera.lookAt(0, 0, 0);
+        }
+
+        function get16by9Size() {
+          const w = window.innerWidth,
+            h = window.innerHeight;
+          if (w / h > 16 / 9)
+            return { width: Math.round((h * 16) / 9), height: h };
+          return { width: w, height: Math.round((w * 9) / 16) };
+        }
+
+        renderer = new THREE.WebGLRenderer({
+          antialias: true,
+          preserveDrawingBuffer: true,
+        });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        const { width, height } = get16by9Size();
+        renderer.setSize(width, height);
+        renderer.setClearColor(0x181818);
+        document.getElementById("output").appendChild(renderer.domElement);
+
+        // Set up thumbnail absolute positioning
+        const outputDiv = document.getElementById("output");
+        outputDiv.style.position = "relative";
+        const thumbContainer = document.getElementById(
+          "tile-thumbnail-container"
         );
-        camera.lookAt(0, 0, 0);
-      }
-
-      function get16by9Size() {
-        const w = window.innerWidth, h = window.innerHeight;
-        if (w / h > 16 / 9) return { width: Math.round(h * 16 / 9), height: h };
-        return { width: w, height: Math.round(w * 9 / 16) };
-      }
-
-      renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-      renderer.setPixelRatio(window.devicePixelRatio);
-      const { width, height } = get16by9Size();
-      renderer.setSize(width, height);
-      renderer.setClearColor(0x181818);
-      document.getElementById('output').appendChild(renderer.domElement);
-
-      // Set up thumbnail absolute positioning
-      const outputDiv = document.getElementById('output');
-      outputDiv.style.position = 'relative';
-      const thumbContainer = document.getElementById('tile-thumbnail-container');
-      const thumb = document.getElementById('tile-thumbnail');
-      const thumbLabel = document.getElementById('tile-thumbnail-label');
-      thumbContainer.style.position = 'absolute';
-      thumbContainer.style.left = THUMB_MARGIN_LEFT + 'px';
-      thumbContainer.style.bottom = THUMB_MARGIN_BOTTOM + 'px';
-      thumbContainer.style.pointerEvents = 'none';
-      thumbContainer.style.display = 'none';
-      thumbContainer.style.boxSizing = 'content-box';
-      thumbContainer.style.zIndex = 10;
-
-      // Helper to update thumbnail style (Bootstrap card handles most styling)
-      function updateThumbnailStyle() {
-        thumbContainer.style.left = THUMB_MARGIN_LEFT + 'px';
-        thumbContainer.style.bottom = THUMB_MARGIN_BOTTOM + 'px';
-        thumbContainer.style.display = thumb.src ? '' : 'none';
+        const thumb = document.getElementById("tile-thumbnail");
+        const thumbLabel = document.getElementById("tile-thumbnail-label");
+        thumbContainer.style.position = "absolute";
+        thumbContainer.style.left = THUMB_MARGIN_LEFT + "px";
+        thumbContainer.style.bottom = THUMB_MARGIN_BOTTOM + "px";
+        thumbContainer.style.pointerEvents = "none";
+        thumbContainer.style.display = "none";
+        thumbContainer.style.boxSizing = "content-box";
         thumbContainer.style.zIndex = 10;
-      }
 
-      // Update thumbnail when model changes
-      function updateTileThumbnail(model) {
-        thumb.src = model.path + model.file;
-        thumb.alt = model.file.replace(/\.[^/.]+$/, '');
-        thumbLabel.textContent = model.file.replace(/\.[^/.]+$/, '');
-        thumbContainer.style.display = '';
-        updateThumbnailStyle();
-      }
+        // Helper to update thumbnail style (Bootstrap card handles most styling)
+        function updateThumbnailStyle() {
+          thumbContainer.style.left = THUMB_MARGIN_LEFT + "px";
+          thumbContainer.style.bottom = THUMB_MARGIN_BOTTOM + "px";
+          thumbContainer.style.display = thumb.src ? "" : "none";
+          thumbContainer.style.zIndex = 10;
+        }
 
-      // Model dropdown logic
-      function fetchModels() {
-        fetch('models.json')
-          .then(res => res.json())
-          .then(data => {
-            models = data;
-            populateModelDropdown();
-            selectModel(0);
-          });
-      }
+        // Update thumbnail when model changes
+        function updateTileThumbnail(model) {
+          thumb.src = model.path + model.file;
+          thumb.alt = model.file.replace(/\.[^/.]+$/, "");
+          thumbLabel.textContent = model.file.replace(/\.[^/.]+$/, "");
+          thumbContainer.style.display = "";
+          updateThumbnailStyle();
+        }
 
-      function populateModelDropdown() {
-        const dropdownList = document.getElementById('model-dropdown-list');
-        dropdownList.innerHTML = '';
-        models.forEach((model, idx) => {
-          const modelName = model.file.replace(/\.[^/.]+$/, '');
-          const li = document.createElement('li');
-          li.innerHTML = `
+        // Model dropdown logic
+        function fetchModels() {
+          fetch("models.json")
+            .then((res) => res.json())
+            .then((data) => {
+              models = data;
+              populateModelDropdown();
+              selectModel(0);
+            });
+        }
+
+        function populateModelDropdown() {
+          const dropdownList = document.getElementById("model-dropdown-list");
+          dropdownList.innerHTML = "";
+          models.forEach((model, idx) => {
+            const modelName = model.file.replace(/\.[^/.]+$/, "");
+            const li = document.createElement("li");
+            li.innerHTML = `
         <a href="#" class="dropdown-item d-flex align-items-center" data-idx="${idx}">
-          <img src="${model.path + model.file}" style="width:32px;height:32px;object-fit:cover;margin-right:8px;">
+          <img src="${model.path + model.file}" class="model-dropdown-img">
           <span>${modelName}</span>
         </a>
           `;
-          dropdownList.appendChild(li);
-        });
-        dropdownList.querySelectorAll('.dropdown-item').forEach(item => {
-          item.onclick = function(e) {
-            e.preventDefault();
-            selectModel(+this.getAttribute('data-idx'));
-          };
-        });
-      }
+            dropdownList.appendChild(li);
+          });
+          dropdownList.querySelectorAll(".dropdown-item").forEach((item) => {
+            item.onclick = function (e) {
+              e.preventDefault();
+              selectModel(+this.getAttribute("data-idx"));
+            };
+          });
+        }
 
-      function selectModel(idx) {
-        selectedModelIdx = idx;
-        const model = models[idx];
-        // Update preview
-        const img = document.getElementById('model-preview-img');
-        img.src = model.path + model.file;
-        img.style.display = '';
-        document.getElementById('model-preview-name').textContent = model.file.replace(/\.[^/.]+$/, '');
-        loadTileTextures(model);
-        updateTileThumbnail(model); // <-- update thumbnail
-      }
+        function selectModel(idx) {
+          selectedModelIdx = idx;
+          const model = models[idx];
+          // Update preview
+          const img = document.getElementById("model-preview-img");
+          img.src = model.path + model.file;
+          img.style.display = "";
+          document.getElementById("model-preview-name").textContent =
+            model.file.replace(/\.[^/.]+$/, "");
+          loadTileTextures(model);
+          updateTileThumbnail(model); // <-- update thumbnail
+        }
 
-      document.getElementById('prev-model').onclick = function() {
-        if (!models.length) return;
-        selectedModelIdx = (selectedModelIdx - 1 + models.length) % models.length;
-        selectModel(selectedModelIdx);
-      };
-      document.getElementById('next-model').onclick = function() {
-        if (!models.length) return;
-        selectedModelIdx = (selectedModelIdx + 1) % models.length;
-        selectModel(selectedModelIdx);
-      };
+        document.getElementById("prev-model").onclick = function () {
+          if (!models.length) return;
+          selectedModelIdx =
+            (selectedModelIdx - 1 + models.length) % models.length;
+          selectModel(selectedModelIdx);
+        };
+        document.getElementById("next-model").onclick = function () {
+          if (!models.length) return;
+          selectedModelIdx = (selectedModelIdx + 1) % models.length;
+          selectModel(selectedModelIdx);
+        };
 
-      function createTiles(tileTextures) {
-        tileMeshes.forEach(mesh => scene.remove(mesh));
-        tileMeshes = [];
-        for (let row = 0; row < TILE_ROWS; row++) {
-          for (let col = 0; col < TILE_COLS; col++) {
-            const geo = new THREE.PlaneGeometry(TILE_WIDTH, TILE_LENGTH, 1, 1);
-            let mat;
-            if (Array.isArray(tileTextures)) {
-              const quadrant = ((row % 2) << 1) | (col % 2);
-              mat = new THREE.MeshStandardMaterial({
-                map: tileTextures[quadrant],
-                roughness: 0.7,
-                metalness: 0.1,
-                color: 0xffffff
-              });
-            } else {
-              mat = new THREE.MeshStandardMaterial({
-                map: tileTextures,
-                roughness: 0.7,
-                metalness: 0.1,
-                color: 0xffffff
-              });
+        function createTiles(tileTextures) {
+          tileMeshes.forEach((mesh) => scene.remove(mesh));
+          tileMeshes = [];
+          for (let row = 0; row < TILE_ROWS; row++) {
+            for (let col = 0; col < TILE_COLS; col++) {
+              const geo = new THREE.PlaneGeometry(
+                TILE_WIDTH,
+                TILE_LENGTH,
+                1,
+                1
+              );
+              let mat;
+              if (Array.isArray(tileTextures)) {
+                const quadrant = (row % 2 << 1) | col % 2;
+                mat = new THREE.MeshStandardMaterial({
+                  map: tileTextures[quadrant],
+                  roughness: 0.7,
+                  metalness: 0.1,
+                  color: 0xffffff,
+                });
+              } else {
+                mat = new THREE.MeshStandardMaterial({
+                  map: tileTextures,
+                  roughness: 0.7,
+                  metalness: 0.1,
+                  color: 0xffffff,
+                });
+              }
+              mat.map.repeat.set(1, 1);
+              mat.map.offset.set(0, 0);
+
+              const mesh = new THREE.Mesh(geo, mat);
+              mesh.rotation.x = -Math.PI / 2;
+              mesh.position.x =
+                -ROOM_WIDTH / 2 +
+                TILE_WIDTH / 2 +
+                col * (TILE_WIDTH + GROUT_SPACE);
+              mesh.position.z =
+                ROOM_DEPTH / 2 -
+                TILE_LENGTH / 2 -
+                row * (TILE_LENGTH + GROUT_SPACE);
+              mesh.position.y = 0.01;
+              scene.add(mesh);
+              tileMeshes.push(mesh);
             }
-            mat.map.repeat.set(1, 1);
-            mat.map.offset.set(0, 0);
-
-            const mesh = new THREE.Mesh(geo, mat);
-            mesh.rotation.x = -Math.PI / 2;
-            mesh.position.x = -ROOM_WIDTH / 2 + TILE_WIDTH / 2 + col * (TILE_WIDTH + GROUT_SPACE);
-            mesh.position.z = ROOM_DEPTH / 2 - TILE_LENGTH / 2 - row * (TILE_LENGTH + GROUT_SPACE);
-            mesh.position.y = 0.01;
-            scene.add(mesh);
-            tileMeshes.push(mesh);
           }
         }
-      }
 
-      function rotateTexture(texture, angleDeg) {
-        const image = texture.image;
-        const size = Math.max(image.width, image.height);
-        const canvas = document.createElement('canvas');
-        canvas.width = size;
-        canvas.height = size;
-        const ctx = canvas.getContext('2d');
-        ctx.save();
-        ctx.clearRect(0, 0, size, size);
-        ctx.translate(size / 2, size / 2);
-        ctx.rotate(angleDeg * Math.PI / 180);
-        ctx.drawImage(image, -image.width / 2, -image.height / 2, image.width, image.height);
-        ctx.restore();
-        const newTexture = new THREE.Texture(canvas);
-        newTexture.needsUpdate = true;
-        newTexture.wrapS = THREE.RepeatWrapping;
-        newTexture.wrapT = THREE.RepeatWrapping;
-        newTexture.minFilter = THREE.LinearFilter;
-        newTexture.magFilter = THREE.LinearFilter;
-        newTexture.colorSpace = THREE.SRGBColorSpace;
-        return newTexture;
-      }
-
-      function loadTileTextures(model) {
-        const src = model.path + model.file;
-        if (loadedTileTextureSrc === src && loadedTileTextures) {
-          createTiles(loadedTileTextures);
-          return;
+        function rotateTexture(texture, angleDeg) {
+          const image = texture.image;
+          const size = Math.max(image.width, image.height);
+          const canvas = document.createElement("canvas");
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext("2d");
+          ctx.save();
+          ctx.clearRect(0, 0, size, size);
+          ctx.translate(size / 2, size / 2);
+          ctx.rotate((angleDeg * Math.PI) / 180);
+          ctx.drawImage(
+            image,
+            -image.width / 2,
+            -image.height / 2,
+            image.width,
+            image.height
+          );
+          ctx.restore();
+          const newTexture = new THREE.Texture(canvas);
+          newTexture.needsUpdate = true;
+          newTexture.wrapS = THREE.RepeatWrapping;
+          newTexture.wrapT = THREE.RepeatWrapping;
+          newTexture.minFilter = THREE.LinearFilter;
+          newTexture.magFilter = THREE.LinearFilter;
+          newTexture.colorSpace = THREE.SRGBColorSpace;
+          return newTexture;
         }
-        loadedTileTextureSrc = src;
-        loadedTileTextures = null;
-        const loader = new THREE.TextureLoader();
-        loader.load(src, function(texture) {
-          texture.wrapS = THREE.RepeatWrapping;
-          texture.wrapT = THREE.RepeatWrapping;
-          texture.minFilter = THREE.LinearFilter;
-          texture.magFilter = THREE.LinearFilter;
-          texture.colorSpace = THREE.SRGBColorSpace;
-          if (model.rotate) {
-            if (texture.image && texture.image.complete) {
-              loadedTileTextures = [
-                rotateTexture(texture, -90),
-                rotateTexture(texture, 180),
-                rotateTexture(texture, 0),
-                rotateTexture(texture, 90)
-              ];
-              createTiles(loadedTileTextures);
-            } else {
-              texture.image.onload = function() {
+
+        function loadTileTextures(model) {
+          const src = model.path + model.file;
+          if (loadedTileTextureSrc === src && loadedTileTextures) {
+            createTiles(loadedTileTextures);
+            return;
+          }
+          loadedTileTextureSrc = src;
+          loadedTileTextures = null;
+          const loader = new THREE.TextureLoader();
+          loader.load(src, function (texture) {
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.minFilter = THREE.LinearFilter;
+            texture.magFilter = THREE.LinearFilter;
+            texture.colorSpace = THREE.SRGBColorSpace;
+            if (model.rotate) {
+              if (texture.image && texture.image.complete) {
                 loadedTileTextures = [
-                  texture,
+                  rotateTexture(texture, -90),
+                  rotateTexture(texture, 180),
                   rotateTexture(texture, 0),
-                  rotateTexture(texture, 0),
-                  rotateTexture(texture, 0)
+                  rotateTexture(texture, 90),
                 ];
                 createTiles(loadedTileTextures);
-              };
+              } else {
+                texture.image.onload = function () {
+                  loadedTileTextures = [
+                    texture,
+                    rotateTexture(texture, 0),
+                    rotateTexture(texture, 0),
+                    rotateTexture(texture, 0),
+                  ];
+                  createTiles(loadedTileTextures);
+                };
+              }
+            } else {
+              loadedTileTextures = texture;
+              createTiles(texture);
             }
-          } else {
-            loadedTileTextures = texture;
-            createTiles(texture);
-          }
-        });
-      }
-
-      // Grout space input
-      document.getElementById('grout-space').addEventListener('change', function() {
-        GROUT_SPACE = parseFloat(this.value) || 0;
-        if (loadedTileTextures) createTiles(loadedTileTextures);
-      });
-
-      // Download JPEG button
-      document.getElementById('download-jpeg').onclick = function() {
-        const exportWidth = IMAGE_WIDTH, exportHeight = IMAGE_LENGTH;
-        const originalSize = renderer.getSize(new THREE.Vector2());
-        const originalPixelRatio = renderer.getPixelRatio();
-
-        // Render Three.js scene to an offscreen canvas
-        renderer.setPixelRatio(1);
-        renderer.setSize(exportWidth, exportHeight, false);
-        camera.aspect = exportWidth / exportHeight;
-        camera.updateProjectionMatrix();
-        renderer.render(scene, camera);
-
-        // Create a new canvas to combine scene + thumbnail
-        const exportCanvas = document.createElement('canvas');
-        exportCanvas.width = exportWidth;
-        exportCanvas.height = exportHeight;
-        const ctx = exportCanvas.getContext('2d');
-
-        // Draw the rendered scene
-        ctx.drawImage(renderer.domElement, 0, 0, exportWidth, exportHeight);
-
-        // Draw the thumbnail card if present
-        const thumb = document.getElementById('tile-thumbnail');
-        const thumbLabel = document.getElementById('tile-thumbnail-label');
-        if (thumb && thumb.src && thumb.src.startsWith('data:') === false && thumb.style.display !== 'none') {
-          // Calculate thumbnail position/size relative to export canvas
-          const scaleX = exportWidth / originalSize.x;
-          const scaleY = exportHeight / originalSize.y;
-          const scale = Math.min(scaleX, scaleY);
-
-          // Card dimensions (match Bootstrap card in DOM)
-          const CARD_WIDTH = 170 * scale;
-          const CARD_HEIGHT = 210 * scale; // 150 img + 10 top margin + 10 bottom margin + label
-          const CARD_RADIUS = 8 * scale;
-          const CARD_MARGIN_LEFT = 50 * scale;
-          const CARD_MARGIN_BOTTOM = 10 * scale;
-
-          const IMG_SIZE = 150 * scale;
-          const IMG_MARGIN_TOP = 10 * scale;
-          const IMG_MARGIN_LEFT = (CARD_WIDTH - IMG_SIZE) / 2;
-
-          const LABEL_HEIGHT = 32 * scale;
-          const LABEL_FONT = `bold ${16 * scale}px sans-serif`;
-
-          // Card position (bottom left)
-          const cardX = CARD_MARGIN_LEFT;
-          const cardY = exportHeight - CARD_MARGIN_BOTTOM - CARD_HEIGHT;
-
-          // Draw card background with rounded corners
-          ctx.save();
-          ctx.beginPath();
-          // Manual rounded rect for compatibility
-          ctx.moveTo(cardX + CARD_RADIUS, cardY);
-          ctx.lineTo(cardX + CARD_WIDTH - CARD_RADIUS, cardY);
-          ctx.quadraticCurveTo(cardX + CARD_WIDTH, cardY, cardX + CARD_WIDTH, cardY + CARD_RADIUS);
-          ctx.lineTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT - CARD_RADIUS);
-          ctx.quadraticCurveTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT, cardX + CARD_WIDTH - CARD_RADIUS, cardY + CARD_HEIGHT);
-          ctx.lineTo(cardX + CARD_RADIUS, cardY + CARD_HEIGHT);
-          ctx.quadraticCurveTo(cardX, cardY + CARD_HEIGHT, cardX, cardY + CARD_HEIGHT - CARD_RADIUS);
-          ctx.lineTo(cardX, cardY + CARD_RADIUS);
-          ctx.quadraticCurveTo(cardX, cardY, cardX + CARD_RADIUS, cardY);
-          ctx.closePath();
-          ctx.fillStyle = '#fff';
-          ctx.shadowColor = 'rgba(0,0,0,0.18)';
-          ctx.shadowBlur = 8 * scale;
-          ctx.fill();
-          ctx.restore();
-
-          // Optional: Draw card border
-          ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(cardX + CARD_RADIUS, cardY);
-          ctx.lineTo(cardX + CARD_WIDTH - CARD_RADIUS, cardY);
-          ctx.quadraticCurveTo(cardX + CARD_WIDTH, cardY, cardX + CARD_WIDTH, cardY + CARD_RADIUS);
-          ctx.lineTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT - CARD_RADIUS);
-          ctx.quadraticCurveTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT, cardX + CARD_WIDTH - CARD_RADIUS, cardY + CARD_HEIGHT);
-          ctx.lineTo(cardX + CARD_RADIUS, cardY + CARD_HEIGHT);
-          ctx.quadraticCurveTo(cardX, cardY + CARD_HEIGHT, cardX, cardY + CARD_HEIGHT - CARD_RADIUS);
-          ctx.lineTo(cardX, cardY + CARD_RADIUS);
-          ctx.quadraticCurveTo(cardX, cardY, cardX + CARD_RADIUS, cardY);
-          ctx.closePath();
-          ctx.lineWidth = 2 * scale;
-          ctx.strokeStyle = '#dee2e6';
-          ctx.stroke();
-          ctx.restore();
-
-          // Clip to card rounded rect before drawing image
-          ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(cardX + CARD_RADIUS, cardY);
-          ctx.lineTo(cardX + CARD_WIDTH - CARD_RADIUS, cardY);
-          ctx.quadraticCurveTo(cardX + CARD_WIDTH, cardY, cardX + CARD_WIDTH, cardY + CARD_RADIUS);
-          ctx.lineTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT - CARD_RADIUS);
-          ctx.quadraticCurveTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT, cardX + CARD_WIDTH - CARD_RADIUS, cardY + CARD_HEIGHT);
-          ctx.lineTo(cardX + CARD_RADIUS, cardY + CARD_HEIGHT);
-          ctx.quadraticCurveTo(cardX, cardY + CARD_HEIGHT, cardX, cardY + CARD_HEIGHT - CARD_RADIUS);
-          ctx.lineTo(cardX, cardY + CARD_RADIUS);
-          ctx.quadraticCurveTo(cardX, cardY, cardX + CARD_RADIUS, cardY);
-          ctx.closePath();
-          ctx.clip();
-
-          // Draw thumbnail image (centered, with margin)
-          ctx.drawImage(
-            thumb,
-            cardX + IMG_MARGIN_LEFT,
-            cardY + IMG_MARGIN_TOP,
-            IMG_SIZE,
-            IMG_SIZE
-          );
-          ctx.restore();
-
-          // Draw label text (centered, inside card)
-          ctx.save();
-          ctx.font = LABEL_FONT;
-          ctx.fillStyle = '#222';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          const labelText = thumbLabel.textContent || '';
-          ctx.fillText(
-            labelText,
-            cardX + CARD_WIDTH / 2,
-            cardY + IMG_MARGIN_TOP + IMG_SIZE + LABEL_HEIGHT / 2
-          );
-          ctx.restore();
+          });
         }
 
-        // Download the combined image
-        const model = models[selectedModelIdx];
-        const modelName = model.file.replace(/\.[^/.]+$/, '');
+        // Grout space input
+        document
+          .getElementById("grout-space")
+          .addEventListener("change", function () {
+            GROUT_SPACE = parseFloat(this.value) || 0;
+            if (loadedTileTextures) createTiles(loadedTileTextures);
+          });
 
-        const link = document.createElement('a');
-        link.download = modelName + '.jpg';
-        link.href = exportCanvas.toDataURL('image/jpeg', 0.95);
-        link.click();
+        // Download JPEG button
+        document.getElementById("download-jpeg").onclick = function () {
+          const exportWidth = IMAGE_WIDTH,
+            exportHeight = IMAGE_LENGTH;
+          const originalSize = renderer.getSize(new THREE.Vector2());
+          const originalPixelRatio = renderer.getPixelRatio();
 
-        // Restore renderer
-        renderer.setPixelRatio(originalPixelRatio);
-        renderer.setSize(originalSize.x, originalSize.y, false);
+          // Render Three.js scene to an offscreen canvas
+          renderer.setPixelRatio(1);
+          renderer.setSize(exportWidth, exportHeight, false);
+          camera.aspect = exportWidth / exportHeight;
+          camera.updateProjectionMatrix();
+          renderer.render(scene, camera);
+
+          // Create a new canvas to combine scene + thumbnail
+          const exportCanvas = document.createElement("canvas");
+          exportCanvas.width = exportWidth;
+          exportCanvas.height = exportHeight;
+          const ctx = exportCanvas.getContext("2d");
+
+          // Draw the rendered scene
+          ctx.drawImage(renderer.domElement, 0, 0, exportWidth, exportHeight);
+
+          // Draw the thumbnail card if present
+          const thumb = document.getElementById("tile-thumbnail");
+          const thumbLabel = document.getElementById("tile-thumbnail-label");
+          if (
+            thumb &&
+            thumb.src &&
+            thumb.src.startsWith("data:") === false &&
+            thumb.style.display !== "none"
+          ) {
+            // Calculate thumbnail position/size relative to export canvas
+            const scaleX = exportWidth / originalSize.x;
+            const scaleY = exportHeight / originalSize.y;
+            const scale = Math.min(scaleX, scaleY);
+
+            // Card dimensions (match Bootstrap card in DOM)
+            const CARD_WIDTH = 170 * scale;
+            const CARD_HEIGHT = 210 * scale; // 150 img + 10 top margin + 10 bottom margin + label
+            const CARD_RADIUS = 8 * scale;
+            const CARD_MARGIN_LEFT = 50 * scale;
+            const CARD_MARGIN_BOTTOM = 10 * scale;
+
+            const IMG_SIZE = 150 * scale;
+            const IMG_MARGIN_TOP = 10 * scale;
+            const IMG_MARGIN_LEFT = (CARD_WIDTH - IMG_SIZE) / 2;
+
+            const LABEL_HEIGHT = 32 * scale;
+            const LABEL_FONT = `bold ${16 * scale}px sans-serif`;
+
+            // Card position (bottom left)
+            const cardX = CARD_MARGIN_LEFT;
+            const cardY = exportHeight - CARD_MARGIN_BOTTOM - CARD_HEIGHT;
+
+            // Draw card background with rounded corners
+            ctx.save();
+            ctx.beginPath();
+            // Manual rounded rect for compatibility
+            ctx.moveTo(cardX + CARD_RADIUS, cardY);
+            ctx.lineTo(cardX + CARD_WIDTH - CARD_RADIUS, cardY);
+            ctx.quadraticCurveTo(
+              cardX + CARD_WIDTH,
+              cardY,
+              cardX + CARD_WIDTH,
+              cardY + CARD_RADIUS
+            );
+            ctx.lineTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT - CARD_RADIUS);
+            ctx.quadraticCurveTo(
+              cardX + CARD_WIDTH,
+              cardY + CARD_HEIGHT,
+              cardX + CARD_WIDTH - CARD_RADIUS,
+              cardY + CARD_HEIGHT
+            );
+            ctx.lineTo(cardX + CARD_RADIUS, cardY + CARD_HEIGHT);
+            ctx.quadraticCurveTo(
+              cardX,
+              cardY + CARD_HEIGHT,
+              cardX,
+              cardY + CARD_HEIGHT - CARD_RADIUS
+            );
+            ctx.lineTo(cardX, cardY + CARD_RADIUS);
+            ctx.quadraticCurveTo(cardX, cardY, cardX + CARD_RADIUS, cardY);
+            ctx.closePath();
+            ctx.fillStyle = "#fff";
+            ctx.shadowColor = "rgba(0,0,0,0.18)";
+            ctx.shadowBlur = 8 * scale;
+            ctx.fill();
+            ctx.restore();
+
+            // Optional: Draw card border
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(cardX + CARD_RADIUS, cardY);
+            ctx.lineTo(cardX + CARD_WIDTH - CARD_RADIUS, cardY);
+            ctx.quadraticCurveTo(
+              cardX + CARD_WIDTH,
+              cardY,
+              cardX + CARD_WIDTH,
+              cardY + CARD_RADIUS
+            );
+            ctx.lineTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT - CARD_RADIUS);
+            ctx.quadraticCurveTo(
+              cardX + CARD_WIDTH,
+              cardY + CARD_HEIGHT,
+              cardX + CARD_WIDTH - CARD_RADIUS,
+              cardY + CARD_HEIGHT
+            );
+            ctx.lineTo(cardX + CARD_RADIUS, cardY + CARD_HEIGHT);
+            ctx.quadraticCurveTo(
+              cardX,
+              cardY + CARD_HEIGHT,
+              cardX,
+              cardY + CARD_HEIGHT - CARD_RADIUS
+            );
+            ctx.lineTo(cardX, cardY + CARD_RADIUS);
+            ctx.quadraticCurveTo(cardX, cardY, cardX + CARD_RADIUS, cardY);
+            ctx.closePath();
+            ctx.lineWidth = 2 * scale;
+            ctx.strokeStyle = "#dee2e6";
+            ctx.stroke();
+            ctx.restore();
+
+            // Clip to card rounded rect before drawing image
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(cardX + CARD_RADIUS, cardY);
+            ctx.lineTo(cardX + CARD_WIDTH - CARD_RADIUS, cardY);
+            ctx.quadraticCurveTo(
+              cardX + CARD_WIDTH,
+              cardY,
+              cardX + CARD_WIDTH,
+              cardY + CARD_RADIUS
+            );
+            ctx.lineTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT - CARD_RADIUS);
+            ctx.quadraticCurveTo(
+              cardX + CARD_WIDTH,
+              cardY + CARD_HEIGHT,
+              cardX + CARD_WIDTH - CARD_RADIUS,
+              cardY + CARD_HEIGHT
+            );
+            ctx.lineTo(cardX + CARD_RADIUS, cardY + CARD_HEIGHT);
+            ctx.quadraticCurveTo(
+              cardX,
+              cardY + CARD_HEIGHT,
+              cardX,
+              cardY + CARD_HEIGHT - CARD_RADIUS
+            );
+            ctx.lineTo(cardX, cardY + CARD_RADIUS);
+            ctx.quadraticCurveTo(cardX, cardY, cardX + CARD_RADIUS, cardY);
+            ctx.closePath();
+            ctx.clip();
+
+            // Draw thumbnail image (centered, with margin)
+            ctx.drawImage(
+              thumb,
+              cardX + IMG_MARGIN_LEFT,
+              cardY + IMG_MARGIN_TOP,
+              IMG_SIZE,
+              IMG_SIZE
+            );
+            ctx.restore();
+
+            // Draw label text (centered, inside card)
+            ctx.save();
+            ctx.font = LABEL_FONT;
+            ctx.fillStyle = "#222";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            const labelText = thumbLabel.textContent || "";
+            ctx.fillText(
+              labelText,
+              cardX + CARD_WIDTH / 2,
+              cardY + IMG_MARGIN_TOP + IMG_SIZE + LABEL_HEIGHT / 2
+            );
+            ctx.restore();
+          }
+
+          // Download the combined image
+          const model = models[selectedModelIdx];
+          const modelName = model.file.replace(/\.[^/.]+$/, "");
+
+          const link = document.createElement("a");
+          link.download = modelName + ".jpg";
+          link.href = exportCanvas.toDataURL("image/jpeg", 0.95);
+          link.click();
+
+          // Restore renderer
+          renderer.setPixelRatio(originalPixelRatio);
+          renderer.setSize(originalSize.x, originalSize.y, false);
+          camera.aspect = 16 / 9;
+          camera.updateProjectionMatrix();
+        };
+
+        // Camera angle controls
+        const cameraAngleSelect = document.getElementById(
+          "camera-angle-select"
+        );
+        const cameraAngleSlider = document.getElementById(
+          "camera-angle-slider"
+        );
+        const cameraAngleValue = document.getElementById("camera-angle-value");
+
+        function updateCameraAngle(angle) {
+          CAMERA_ANGLE = angle;
+          setCameraAngle(CAMERA_ANGLE);
+          cameraAngleSlider.value = CAMERA_ANGLE;
+          cameraAngleValue.textContent = CAMERA_ANGLE + "°";
+          cameraAngleSelect.value =
+            CAMERA_ANGLE === 0 || CAMERA_ANGLE === 90 ? CAMERA_ANGLE : "";
+        }
+
+        cameraAngleSelect.onchange = (event) =>
+          updateCameraAngle(+event.target.value);
+        cameraAngleSlider.oninput = (event) =>
+          updateCameraAngle(+event.target.value);
+
+        cameraAngleValue.textContent = CAMERA_ANGLE + "°";
+
+        // Wall and lights
+        scene.add(new THREE.AmbientLight(0xffffff, 0.35));
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.45);
+        dirLight.position.set(2, 8, 6);
+        dirLight.castShadow = true;
+        scene.add(dirLight);
+
+        const pointLight = new THREE.PointLight(0xffffff, 0.15, 20);
+        pointLight.position.set(0, 3.5, 3);
+        scene.add(pointLight);
+
+        window.addEventListener("resize", () => {
+          const { width, height } = get16by9Size();
+          camera.aspect = 16 / 9;
+          camera.updateProjectionMatrix();
+          renderer.setSize(width, height);
+          renderer.setPixelRatio(window.devicePixelRatio);
+          renderer.domElement.style.display = "block";
+          renderer.domElement.style.margin = "auto";
+          updateThumbnailStyle();
+        });
+
         camera.aspect = 16 / 9;
         camera.updateProjectionMatrix();
-      };
 
-      // Camera angle controls
-      const cameraAngleSelect = document.getElementById('camera-angle-select');
-      const cameraAngleSlider = document.getElementById('camera-angle-slider');
-      const cameraAngleValue = document.getElementById('camera-angle-value');
+        renderer.setAnimationLoop(() => {
+          renderer.render(scene, camera);
+        });
 
-      function updateCameraAngle(angle) {
-        CAMERA_ANGLE = angle;
-        setCameraAngle(CAMERA_ANGLE);
-        cameraAngleSlider.value = CAMERA_ANGLE;
-        cameraAngleValue.textContent = CAMERA_ANGLE + '°';
-        cameraAngleSelect.value = (CAMERA_ANGLE === 0 || CAMERA_ANGLE === 90) ? CAMERA_ANGLE : "";
-      }
-
-      cameraAngleSelect.onchange = (event) => updateCameraAngle(+event.target.value);
-      cameraAngleSlider.oninput = (event) => updateCameraAngle(+event.target.value);
-
-      cameraAngleValue.textContent = CAMERA_ANGLE + '°';
-
-      // Wall and lights
-      scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-      const dirLight = new THREE.DirectionalLight(0xffffff, 0.45);
-      dirLight.position.set(2, 8, 6);
-      dirLight.castShadow = true;
-      scene.add(dirLight);
-
-      const pointLight = new THREE.PointLight(0xffffff, 0.15, 20);
-      pointLight.position.set(0, 3.5, 3);
-      scene.add(pointLight);
-
-      window.addEventListener('resize', () => {
-        const { width, height } = get16by9Size();
-        camera.aspect = 16 / 9;
-        camera.updateProjectionMatrix();
-        renderer.setSize(width, height);
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.domElement.style.display = 'block';
-        renderer.domElement.style.margin = 'auto';
-        updateThumbnailStyle();
+        fetchModels();
       });
-
-      camera.aspect = 16 / 9;
-      camera.updateProjectionMatrix();
-
-      renderer.setAnimationLoop(() => {
-        renderer.render(scene, camera);
-      });
-
-      fetchModels();
-    });
-  </script>
-</body>
+    </script>
+  </body>
 </html>
