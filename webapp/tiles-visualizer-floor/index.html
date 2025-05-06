@@ -80,8 +80,13 @@
       <!-- Three.js canvas will be appended here -->
       <!-- Tile thumbnail will be injected here -->
       <div id="tile-thumbnail-container" style="position:absolute; display:none; box-sizing:content-box;">
-        <img id="tile-thumbnail" src="" alt="Tile Thumbnail" class="bg-white rounded-top shadow" style="display:block; box-sizing:content-box;">
-        <div id="tile-thumbnail-label" class="bg-white text-center fw-medium rounded-bottom py-1 px-2" style="color:#222; white-space:nowrap; margin-top:0;"></div>
+        <!-- Bootstrap card for thumbnail -->
+        <div class="card shadow" style="width: 170px; background: #fff;">
+          <img id="tile-thumbnail" src="" alt="Tile Thumbnail" class="card-img-top" style="width: 150px; height: 150px; object-fit: cover; margin: 10px auto 0 auto; display: block;">
+          <div class="card-body p-2">
+            <h6 id="tile-thumbnail-label" class="card-title text-center mb-0" style="color:#222; white-space:nowrap; font-weight: 600;"></h6>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -104,9 +109,9 @@
       let loadedTileTextures = null, loadedTileTextureSrc = null;
 
       // --- Thumbnail global config ---
-      const THUMB_MARGIN_LEFT = 50;  // px, can be changed globally
+      const THUMB_MARGIN_LEFT = 10;  // px, can be changed globally
       const THUMB_MARGIN_BOTTOM = 50; // px, can be changed globally
-      const THUMB_PADDING = 20; // px, can be changed globally
+      const THUMB_PADDING = 5; // px, can be changed globally
       const THUMB_SIZE = 150; // px, fixed thumbnail size
 
       scene = new THREE.Scene();
@@ -148,27 +153,16 @@
       thumbContainer.style.left = THUMB_MARGIN_LEFT + 'px';
       thumbContainer.style.bottom = THUMB_MARGIN_BOTTOM + 'px';
       thumbContainer.style.pointerEvents = 'none';
-      // Remove transparent background and margin between image and label
-      thumbContainer.style.background = 'transparent';
       thumbContainer.style.display = 'none';
       thumbContainer.style.boxSizing = 'content-box';
       thumbContainer.style.zIndex = 10;
 
-      // Helper to update thumbnail position and style
+      // Helper to update thumbnail style (Bootstrap card handles most styling)
       function updateThumbnailStyle() {
         thumbContainer.style.left = THUMB_MARGIN_LEFT + 'px';
         thumbContainer.style.bottom = THUMB_MARGIN_BOTTOM + 'px';
-        thumb.style.width = THUMB_SIZE + 'px';
-        thumb.style.height = THUMB_SIZE + 'px';
-        thumb.style.padding = THUMB_PADDING + 'px';
-        thumb.style.background = '#fff';
-        thumb.style.borderRadius = '2px 2px 0 0';
-        thumb.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
         thumbContainer.style.display = thumb.src ? '' : 'none';
         thumbContainer.style.zIndex = 10;
-        thumbLabel.style.width = (THUMB_SIZE + 2 * THUMB_PADDING) + 'px';
-        // Remove margin between image and label, ensure no gap
-        thumbLabel.style.marginTop = '0';
       }
 
       // Update thumbnail when model changes
@@ -366,37 +360,46 @@
         // Draw the rendered scene
         ctx.drawImage(renderer.domElement, 0, 0, exportWidth, exportHeight);
 
-        // Draw the thumbnail if present
+        // Draw the thumbnail card if present
         const thumb = document.getElementById('tile-thumbnail');
         const thumbLabel = document.getElementById('tile-thumbnail-label');
         if (thumb && thumb.src && thumb.src.startsWith('data:') === false && thumb.style.display !== 'none') {
           // Calculate thumbnail position/size relative to export canvas
-          // Use the same margins/padding as in the config
           const scaleX = exportWidth / originalSize.x;
           const scaleY = exportHeight / originalSize.y;
           const scale = Math.min(scaleX, scaleY);
 
-          // Use the same values as in the config
-          const THUMB_MARGIN_LEFT = 50;
-          const THUMB_MARGIN_BOTTOM = 10;
-          const THUMB_PADDING = 20;
-          const THUMB_SIZE = 150;
+          // Card dimensions (match Bootstrap card in DOM)
+          const CARD_WIDTH = 170 * scale;
+          const CARD_HEIGHT = 210 * scale; // 150 img + 10 top margin + 10 bottom margin + label
+          const CARD_RADIUS = 8 * scale;
+          const CARD_MARGIN_LEFT = 50 * scale;
+          const CARD_MARGIN_BOTTOM = 10 * scale;
 
-          // Calculate positions and sizes
-          const thumbW = THUMB_SIZE + 2 * THUMB_PADDING;
-          const thumbH = THUMB_SIZE + 2 * THUMB_PADDING;
-          const thumbX = THUMB_MARGIN_LEFT * scale;
-          const thumbY = exportHeight - (THUMB_MARGIN_BOTTOM * scale) - thumbH;
+          const IMG_SIZE = 150 * scale;
+          const IMG_MARGIN_TOP = 10 * scale;
+          const IMG_MARGIN_LEFT = (CARD_WIDTH - IMG_SIZE) / 2;
 
-          // Draw thumbnail background (white, rounded top corners)
+          const LABEL_HEIGHT = 32 * scale;
+          const LABEL_FONT = `bold ${16 * scale}px sans-serif`;
+
+          // Card position (bottom left)
+          const cardX = CARD_MARGIN_LEFT;
+          const cardY = exportHeight - CARD_MARGIN_BOTTOM - CARD_HEIGHT;
+
+          // Draw card background with rounded corners
           ctx.save();
           ctx.beginPath();
-          const radius = 2 * scale;
-          ctx.moveTo(thumbX, thumbY + radius);
-          ctx.arcTo(thumbX, thumbY, thumbX + thumbW, thumbY, radius);
-          ctx.arcTo(thumbX + thumbW, thumbY, thumbX + thumbW, thumbY + radius, radius);
-          ctx.lineTo(thumbX + thumbW, thumbY + thumbH);
-          ctx.lineTo(thumbX, thumbY + thumbH);
+          // Manual rounded rect for compatibility
+          ctx.moveTo(cardX + CARD_RADIUS, cardY);
+          ctx.lineTo(cardX + CARD_WIDTH - CARD_RADIUS, cardY);
+          ctx.quadraticCurveTo(cardX + CARD_WIDTH, cardY, cardX + CARD_WIDTH, cardY + CARD_RADIUS);
+          ctx.lineTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT - CARD_RADIUS);
+          ctx.quadraticCurveTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT, cardX + CARD_WIDTH - CARD_RADIUS, cardY + CARD_HEIGHT);
+          ctx.lineTo(cardX + CARD_RADIUS, cardY + CARD_HEIGHT);
+          ctx.quadraticCurveTo(cardX, cardY + CARD_HEIGHT, cardX, cardY + CARD_HEIGHT - CARD_RADIUS);
+          ctx.lineTo(cardX, cardY + CARD_RADIUS);
+          ctx.quadraticCurveTo(cardX, cardY, cardX + CARD_RADIUS, cardY);
           ctx.closePath();
           ctx.fillStyle = '#fff';
           ctx.shadowColor = 'rgba(0,0,0,0.18)';
@@ -404,45 +407,60 @@
           ctx.fill();
           ctx.restore();
 
-          // Draw thumbnail image
+          // Optional: Draw card border
           ctx.save();
           ctx.beginPath();
-          ctx.rect(thumbX + THUMB_PADDING * scale, thumbY + THUMB_PADDING * scale, THUMB_SIZE * scale, THUMB_SIZE * scale);
+          ctx.moveTo(cardX + CARD_RADIUS, cardY);
+          ctx.lineTo(cardX + CARD_WIDTH - CARD_RADIUS, cardY);
+          ctx.quadraticCurveTo(cardX + CARD_WIDTH, cardY, cardX + CARD_WIDTH, cardY + CARD_RADIUS);
+          ctx.lineTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT - CARD_RADIUS);
+          ctx.quadraticCurveTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT, cardX + CARD_WIDTH - CARD_RADIUS, cardY + CARD_HEIGHT);
+          ctx.lineTo(cardX + CARD_RADIUS, cardY + CARD_HEIGHT);
+          ctx.quadraticCurveTo(cardX, cardY + CARD_HEIGHT, cardX, cardY + CARD_HEIGHT - CARD_RADIUS);
+          ctx.lineTo(cardX, cardY + CARD_RADIUS);
+          ctx.quadraticCurveTo(cardX, cardY, cardX + CARD_RADIUS, cardY);
+          ctx.closePath();
+          ctx.lineWidth = 2 * scale;
+          ctx.strokeStyle = '#dee2e6';
+          ctx.stroke();
+          ctx.restore();
+
+          // Clip to card rounded rect before drawing image
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(cardX + CARD_RADIUS, cardY);
+          ctx.lineTo(cardX + CARD_WIDTH - CARD_RADIUS, cardY);
+          ctx.quadraticCurveTo(cardX + CARD_WIDTH, cardY, cardX + CARD_WIDTH, cardY + CARD_RADIUS);
+          ctx.lineTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT - CARD_RADIUS);
+          ctx.quadraticCurveTo(cardX + CARD_WIDTH, cardY + CARD_HEIGHT, cardX + CARD_WIDTH - CARD_RADIUS, cardY + CARD_HEIGHT);
+          ctx.lineTo(cardX + CARD_RADIUS, cardY + CARD_HEIGHT);
+          ctx.quadraticCurveTo(cardX, cardY + CARD_HEIGHT, cardX, cardY + CARD_HEIGHT - CARD_RADIUS);
+          ctx.lineTo(cardX, cardY + CARD_RADIUS);
+          ctx.quadraticCurveTo(cardX, cardY, cardX + CARD_RADIUS, cardY);
+          ctx.closePath();
           ctx.clip();
+
+          // Draw thumbnail image (centered, with margin)
           ctx.drawImage(
             thumb,
-            thumbX + THUMB_PADDING * scale,
-            thumbY + THUMB_PADDING * scale,
-            THUMB_SIZE * scale,
-            THUMB_SIZE * scale
+            cardX + IMG_MARGIN_LEFT,
+            cardY + IMG_MARGIN_TOP,
+            IMG_SIZE,
+            IMG_SIZE
           );
           ctx.restore();
 
-          // Draw label background (white, rounded bottom corners)
-          const labelH = 32 * scale;
+          // Draw label text (centered, inside card)
           ctx.save();
-          ctx.beginPath();
-          ctx.moveTo(thumbX, thumbY + thumbH);
-          ctx.lineTo(thumbX + thumbW, thumbY + thumbH);
-          ctx.arcTo(thumbX + thumbW, thumbY + thumbH + labelH, thumbX + thumbW - radius, thumbY + thumbH + labelH, radius);
-          ctx.lineTo(thumbX + radius, thumbY + thumbH + labelH);
-          ctx.arcTo(thumbX, thumbY + thumbH + labelH, thumbX, thumbY + thumbH, radius);
-          ctx.closePath();
-          ctx.fillStyle = '#fff';
-          ctx.fill();
-          ctx.restore();
-
-          // Draw label text (centered)
-          ctx.save();
-          ctx.font = `bold ${18 * scale}px sans-serif`;
+          ctx.font = LABEL_FONT;
           ctx.fillStyle = '#222';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
           const labelText = thumbLabel.textContent || '';
           ctx.fillText(
             labelText,
-            thumbX + thumbW / 2,
-            thumbY + thumbH + labelH / 2
+            cardX + CARD_WIDTH / 2,
+            cardY + IMG_MARGIN_TOP + IMG_SIZE + LABEL_HEIGHT / 2
           );
           ctx.restore();
         }
