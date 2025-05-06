@@ -21,16 +21,8 @@
         min-height: 100vh;
         background: #181818;
       }
-      /* Added for model preview image */
-      .model-preview-img {
-        width: 32px;
-        height: 32px;
-        object-fit: cover;
-        margin-right: 8px;
-        /* Remove display: none to allow showing the image */
-      }
-      /* Added for model dropdown image */
-      .model-dropdown-img {
+      /* Merged for model preview and dropdown image */
+      .model-tile-img {
         width: 32px;
         height: 32px;
         object-fit: cover;
@@ -61,7 +53,7 @@
           <div class="input-group">
             <button
               id="prev-model"
-              class="btn btn-outline-secondary"
+              class="btn btn-outline-primary"
               type="button"
               title="Previous"
             >
@@ -69,7 +61,7 @@
             </button>
             <div class="dropdown flex-grow-1">
               <button
-                class="btn btn-outline-light dropdown-toggle d-flex align-items-center w-100"
+                class="btn btn-outline-primary dropdown-toggle d-flex align-items-center w-100"
                 type="button"
                 id="modelDropdownBtn"
                 data-bs-toggle="dropdown"
@@ -79,7 +71,7 @@
                   id="model-preview-img"
                   src=""
                   alt="Preview"
-                  class="model-preview-img"
+                  class="model-tile-img"
                 />
                 <span id="model-preview-name">Model</span>
               </button>
@@ -94,7 +86,7 @@
             </div>
             <button
               id="next-model"
-              class="btn btn-outline-secondary"
+              class="btn btn-outline-primary"
               type="button"
               title="Next"
             >
@@ -204,8 +196,6 @@
         // --- Thumbnail global config ---
         const THUMB_MARGIN_LEFT = 10; // px, can be changed globally
         const THUMB_MARGIN_BOTTOM = 50; // px, can be changed globally
-        const THUMB_PADDING = 5; // px, can be changed globally
-        const THUMB_SIZE = 150; // px, fixed thumbnail size
 
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0x181818);
@@ -293,7 +283,7 @@
             const li = document.createElement("li");
             li.innerHTML = `
         <a href="#" class="dropdown-item d-flex align-items-center" data-idx="${idx}">
-          <img src="${model.path + model.file}" class="model-dropdown-img">
+          <img src="${model.path + model.file}" class="model-tile-img">
           <span>${modelName}</span>
         </a>
           `;
