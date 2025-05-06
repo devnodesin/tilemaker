@@ -1,13 +1,8 @@
 [
     {
         "path": "images/mc/parking/",
-        "file": "14400.jpg",
-        "rotate": true
-    },
-    {
-        "path": "images/mc/parking/",
         "file": "14000.jpg",
-        "rotate": false
+        "rotate": true
     },
     {
         "path": "images/mc/parking/",
@@ -17,7 +12,7 @@
     {
         "path": "images/mc/parking/",
         "file": "14002.jpg",
-        "rotate": false
+        "rotate": true
     },
     {
         "path": "images/mc/parking/",
@@ -142,7 +137,7 @@
     {
         "path": "images/mc/parking/",
         "file": "14504.jpg",
-        "rotate": false
+        "rotate": true
     },
     {
         "path": "images/mc/parking/",

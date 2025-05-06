@@ -2,8 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>3D Floor and Back Wall - Three.js</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <style>
     body, html {
       height: 100%;
@@ -16,38 +18,71 @@
 </head>
 <body class="bg-dark text-light">
   <div id="form-container" class="container my-4">
-    <div class="d-flex align-items-center gap-2">
-      <button id="prev-model" class="btn btn-secondary">Prev</button>
-      <div class="dropdown">
-        <button class="btn btn-outline-light dropdown-toggle d-flex align-items-center" type="button" id="modelDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
-          <img id="model-preview-img" src="" alt="Preview" style="width:32px;height:32px;object-fit:cover;margin-right:8px;display:none;">
-          <span id="model-preview-name">Model</span>
-        </button>
-        <ul class="dropdown-menu" id="model-dropdown-list" aria-labelledby="modelDropdownBtn" style="max-height:300px;overflow:auto;">
-          <!-- Model items will be populated here -->
-        </ul>
+    <div class="d-flex flex-wrap align-items-end gap-2">
+      <!-- Tile Model group -->
+      <div class="d-flex flex-column align-items-start">
+        <label class="form-label mb-1" style="font-size:0.95em;">Tile Model</label>
+        <div class="input-group">
+          <button id="prev-model" class="btn btn-outline-secondary" type="button" title="Previous">
+            <span class="bi bi-chevron-left"></span>
+          </button>
+          <div class="dropdown flex-grow-1">
+            <button class="btn btn-outline-light dropdown-toggle d-flex align-items-center w-100" type="button" id="modelDropdownBtn" data-bs-toggle="dropdown" aria-expanded="false">
+              <img id="model-preview-img" src="" alt="Preview" style="width:32px;height:32px;object-fit:cover;margin-right:8px;display:none;">
+              <span id="model-preview-name">Model</span>
+            </button>
+            <ul class="dropdown-menu w-100" id="model-dropdown-list" aria-labelledby="modelDropdownBtn" style="max-height:300px;overflow:auto;">
+              <!-- Model items will be populated here -->
+            </ul>
+          </div>
+          <button id="next-model" class="btn btn-outline-secondary" type="button" title="Next">
+            <span class="bi bi-chevron-right"></span>
+          </button>
+        </div>
       </div>
-      <button id="next-model" class="btn btn-secondary">Next</button>
-      <select id="camera-angle-select" class="form-select w-auto">
-        <option value="15" selected>Front View</option>
-        <option value="90">Top View</option>
-      </select>
-      <!-- Grout Space input -->
-      <label for="grout-space" class="form-label mb-0 ms-2">Grout Space</label>
-      <input type="number" id="grout-space" class="form-control w-auto" value="0" min="0" max="2" step="0.01" style="width:80px;">
-      <!-- Download JPEG button -->
-      <button id="download-jpeg" class="btn btn-success ms-2">Download JPEG</button>
-    </div>
-    <!-- Optional Controls Row -->
-    <div id="optional-controls" class="d-flex align-items-center gap-2 mt-3">
-      <label for="camera-angle-slider" class="form-label mb-0">Camera Angle</label>
-      <input type="range" class="form-range w-auto" id="camera-angle-slider" min="-90" max="90" step="1" value="15" style="width:200px;">
-      <span id="camera-angle-value" style="min-width:40px;display:inline-block;">15°</span>
+      <!-- Grout Space -->
+      <div class="d-flex flex-column align-items-start">
+        <label for="grout-space" class="form-label mb-1">Grout Space</label>
+        <select id="grout-space" class="form-select w-auto" style="width:80px;">
+          <option value="0">0 mm</option>
+          <option value="0.01">1 mm</option>
+          <option value="0.02" selected>2 mm</option>
+          <option value="0.03">3 mm</option>
+          <option value="0.04">4 mm</option>
+          <option value="0.05">5 mm</option>
+        </select>
+      </div>
+      <!-- Camera Angle Slider -->
+      <div class="d-flex flex-column align-items-start">
+        <label for="camera-angle-slider" class="form-label mb-1">Camera Angle</label>
+        <div class="d-flex align-items-center">
+          <input type="range" class="form-range w-auto" id="camera-angle-slider" min="0" max="90" step="1" value="0" style="width:120px;">
+          <span id="camera-angle-value" style="min-width:40px;display:inline-block;">0°</span>
+        </div>
+      </div>
+      <!-- Camera View -->
+      <div class="d-flex flex-column align-items-start">
+        <label for="camera-angle-select" class="form-label mb-1">View</label>
+        <select id="camera-angle-select" class="form-select w-auto" style="width:120px;">
+          <option value="0" selected>Front View</option>
+          <option value="90">Top View</option>
+        </select>
+      </div>
+      <!-- Download Button -->
+      <div class="d-flex flex-column align-items-start">
+        <label class="form-label mb-1">Download</label>
+        <button id="download-jpeg" class="btn btn-warning">Download JPEG</button>
+      </div>
     </div>
   </div>
   <div id="output-container" class="container my-4">
-    <div id="output" class="d-flex justify-content-center align-items-center" style="min-height:60vh;">
+    <div id="output" class="d-flex justify-content-center align-items-center" style="min-height:60vh; position:relative;">
       <!-- Three.js canvas will be appended here -->
+      <!-- Tile thumbnail will be injected here -->
+      <div id="tile-thumbnail-container" style="position:absolute; display:none; box-sizing:content-box;">
+        <img id="tile-thumbnail" src="" alt="Tile Thumbnail" class="bg-white rounded-top shadow" style="display:block; box-sizing:content-box;">
+        <div id="tile-thumbnail-label" class="bg-white text-center fw-medium rounded-bottom py-1 px-2" style="color:#222; white-space:nowrap; margin-top:0;"></div>
+      </div>
     </div>
   </div>
   <script src="https://cdn.jsdelivr.net/npm/three@0.154.0/build/three.min.js"></script>
@@ -56,22 +91,23 @@
     document.addEventListener('DOMContentLoaded', function () {
       let scene, camera, renderer;
 
-      const ROOM_WIDTH = 25;
-      const ROOM_DEPTH = 8;
-      const ROOM_HEIGHT = 4;
-      const TILE_WIDTH = 2;
-      const TILE_LENGTH = 2;
+      const ROOM_WIDTH = 19, ROOM_DEPTH = 10, ROOM_HEIGHT = 3;
+      const TILE_WIDTH = 2, TILE_LENGTH = 2;
       const TILE_COLS = Math.floor(ROOM_WIDTH / TILE_WIDTH);
       const TILE_ROWS = Math.floor(ROOM_DEPTH / TILE_LENGTH);
-      const CAMERA_HEIGHT = ROOM_HEIGHT * 1.2;
-      const CAMERA_ZOOM = ROOM_DEPTH * 0.6;
-      let CAMERA_ANGLE = 15;
-      let groutSpace = 0.02;
-      let tileMeshes = [];
-      let models = [];
-      let selectedModelIdx = 0;
-      let loadedTileTextures = null; // Will be array if rotated, else single texture
-      let loadedTileTextureSrc = null;
+      const CAMERA_HEIGHT = ROOM_HEIGHT * 1.2, CAMERA_ZOOM = ROOM_DEPTH * 0.25;
+      let CAMERA_ANGLE = 0, GROUT_SPACE = 0.02;
+
+      const IMAGE_WIDTH = 1080, IMAGE_LENGTH = 720;
+
+      let tileMeshes = [], models = [], selectedModelIdx = 0;
+      let loadedTileTextures = null, loadedTileTextureSrc = null;
+
+      // --- Thumbnail global config ---
+      const THUMB_MARGIN_LEFT = 50;  // px, can be changed globally
+      const THUMB_MARGIN_BOTTOM = 50; // px, can be changed globally
+      const THUMB_PADDING = 20; // px, can be changed globally
+      const THUMB_SIZE = 150; // px, fixed thumbnail size
 
       scene = new THREE.Scene();
       scene.background = new THREE.Color(0x181818);
@@ -90,31 +126,59 @@
       }
 
       function get16by9Size() {
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        let width = w, height = h;
-        if (w / h > 16 / 9) {
-          width = h * 16 / 9;
-          height = h;
-        } else {
-          width = w;
-          height = w * 9 / 16;
-        }
-        return { width: Math.round(width), height: Math.round(height) };
+        const w = window.innerWidth, h = window.innerHeight;
+        if (w / h > 16 / 9) return { width: Math.round(h * 16 / 9), height: h };
+        return { width: w, height: Math.round(w * 9 / 16) };
       }
 
       renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
-      renderer.setPixelRatio(window.devicePixelRatio); // Improve rendering quality
+      renderer.setPixelRatio(window.devicePixelRatio);
       const { width, height } = get16by9Size();
       renderer.setSize(width, height);
       renderer.setClearColor(0x181818);
       document.getElementById('output').appendChild(renderer.domElement);
 
-      const whiteMat = new THREE.MeshStandardMaterial({
-        color: 0xffffff,
-        roughness: 0.7,
-        metalness: 0.1
-      });
+      // Set up thumbnail absolute positioning
+      const outputDiv = document.getElementById('output');
+      outputDiv.style.position = 'relative';
+      const thumbContainer = document.getElementById('tile-thumbnail-container');
+      const thumb = document.getElementById('tile-thumbnail');
+      const thumbLabel = document.getElementById('tile-thumbnail-label');
+      thumbContainer.style.position = 'absolute';
+      thumbContainer.style.left = THUMB_MARGIN_LEFT + 'px';
+      thumbContainer.style.bottom = THUMB_MARGIN_BOTTOM + 'px';
+      thumbContainer.style.pointerEvents = 'none';
+      // Remove transparent background and margin between image and label
+      thumbContainer.style.background = 'transparent';
+      thumbContainer.style.display = 'none';
+      thumbContainer.style.boxSizing = 'content-box';
+      thumbContainer.style.zIndex = 10;
+
+      // Helper to update thumbnail position and style
+      function updateThumbnailStyle() {
+        thumbContainer.style.left = THUMB_MARGIN_LEFT + 'px';
+        thumbContainer.style.bottom = THUMB_MARGIN_BOTTOM + 'px';
+        thumb.style.width = THUMB_SIZE + 'px';
+        thumb.style.height = THUMB_SIZE + 'px';
+        thumb.style.padding = THUMB_PADDING + 'px';
+        thumb.style.background = '#fff';
+        thumb.style.borderRadius = '2px 2px 0 0';
+        thumb.style.boxShadow = '0 2px 8px rgba(0,0,0,0.18)';
+        thumbContainer.style.display = thumb.src ? '' : 'none';
+        thumbContainer.style.zIndex = 10;
+        thumbLabel.style.width = (THUMB_SIZE + 2 * THUMB_PADDING) + 'px';
+        // Remove margin between image and label, ensure no gap
+        thumbLabel.style.marginTop = '0';
+      }
+
+      // Update thumbnail when model changes
+      function updateTileThumbnail(model) {
+        thumb.src = model.path + model.file;
+        thumb.alt = model.file.replace(/\.[^/.]+$/, '');
+        thumbLabel.textContent = model.file.replace(/\.[^/.]+$/, '');
+        thumbContainer.style.display = '';
+        updateThumbnailStyle();
+      }
 
       // Model dropdown logic
       function fetchModels() {
@@ -131,7 +195,7 @@
         const dropdownList = document.getElementById('model-dropdown-list');
         dropdownList.innerHTML = '';
         models.forEach((model, idx) => {
-          const modelName = model.file.replace(/\.[^/.]+$/, ''); // Remove file extension
+          const modelName = model.file.replace(/\.[^/.]+$/, '');
           const li = document.createElement('li');
           li.innerHTML = `
         <a href="#" class="dropdown-item d-flex align-items-center" data-idx="${idx}">
@@ -141,12 +205,11 @@
           `;
           dropdownList.appendChild(li);
         });
-        // Dropdown item click
         dropdownList.querySelectorAll('.dropdown-item').forEach(item => {
-          item.addEventListener('click', function(e) {
-        e.preventDefault();
-        selectModel(parseInt(this.getAttribute('data-idx')));
-          });
+          item.onclick = function(e) {
+            e.preventDefault();
+            selectModel(+this.getAttribute('data-idx'));
+          };
         });
       }
 
@@ -157,25 +220,23 @@
         const img = document.getElementById('model-preview-img');
         img.src = model.path + model.file;
         img.style.display = '';
-        const modelName = model.file.replace(/\.[^/.]+$/, ''); // Remove file extension
-        document.getElementById('model-preview-name').textContent = modelName;
-        // Load tile texture(s)
+        document.getElementById('model-preview-name').textContent = model.file.replace(/\.[^/.]+$/, '');
         loadTileTextures(model);
+        updateTileThumbnail(model); // <-- update thumbnail
       }
 
-      document.getElementById('prev-model').addEventListener('click', function() {
+      document.getElementById('prev-model').onclick = function() {
         if (!models.length) return;
         selectedModelIdx = (selectedModelIdx - 1 + models.length) % models.length;
         selectModel(selectedModelIdx);
-      });
-      document.getElementById('next-model').addEventListener('click', function() {
+      };
+      document.getElementById('next-model').onclick = function() {
         if (!models.length) return;
         selectedModelIdx = (selectedModelIdx + 1) % models.length;
         selectModel(selectedModelIdx);
-      });
+      };
 
       function createTiles(tileTextures) {
-        // Remove previous tiles
         tileMeshes.forEach(mesh => scene.remove(mesh));
         tileMeshes = [];
         for (let row = 0; row < TILE_ROWS; row++) {
@@ -183,7 +244,6 @@
             const geo = new THREE.PlaneGeometry(TILE_WIDTH, TILE_LENGTH, 1, 1);
             let mat;
             if (Array.isArray(tileTextures)) {
-              // Use quadrant pattern
               const quadrant = ((row % 2) << 1) | (col % 2);
               mat = new THREE.MeshStandardMaterial({
                 map: tileTextures[quadrant],
@@ -204,8 +264,8 @@
 
             const mesh = new THREE.Mesh(geo, mat);
             mesh.rotation.x = -Math.PI / 2;
-            mesh.position.x = -ROOM_WIDTH / 2 + TILE_WIDTH / 2 + col * (TILE_WIDTH + groutSpace);
-            mesh.position.z = ROOM_DEPTH / 2 - TILE_LENGTH / 2 - row * (TILE_LENGTH + groutSpace);
+            mesh.position.x = -ROOM_WIDTH / 2 + TILE_WIDTH / 2 + col * (TILE_WIDTH + GROUT_SPACE);
+            mesh.position.z = ROOM_DEPTH / 2 - TILE_LENGTH / 2 - row * (TILE_LENGTH + GROUT_SPACE);
             mesh.position.y = 0.01;
             scene.add(mesh);
             tileMeshes.push(mesh);
@@ -214,7 +274,6 @@
       }
 
       function rotateTexture(texture, angleDeg) {
-        // Create a canvas, draw the image rotated, then make a new texture
         const image = texture.image;
         const size = Math.max(image.width, image.height);
         const canvas = document.createElement('canvas');
@@ -233,16 +292,14 @@
         newTexture.wrapT = THREE.RepeatWrapping;
         newTexture.minFilter = THREE.LinearFilter;
         newTexture.magFilter = THREE.LinearFilter;
-        newTexture.encoding = THREE.sRGBEncoding;
+        newTexture.colorSpace = THREE.SRGBColorSpace;
         return newTexture;
       }
 
       function loadTileTextures(model) {
-        // Prevent reloading same image
         const src = model.path + model.file;
         if (loadedTileTextureSrc === src && loadedTileTextures) {
           createTiles(loadedTileTextures);
-          renderer.render(scene, camera);
           return;
         }
         loadedTileTextureSrc = src;
@@ -253,9 +310,8 @@
           texture.wrapT = THREE.RepeatWrapping;
           texture.minFilter = THREE.LinearFilter;
           texture.magFilter = THREE.LinearFilter;
-          texture.encoding = THREE.sRGBEncoding;
+          texture.colorSpace = THREE.SRGBColorSpace;
           if (model.rotate) {
-            // Wait for image to be loaded before rotating
             if (texture.image && texture.image.complete) {
               loadedTileTextures = [
                 rotateTexture(texture, -90),
@@ -264,92 +320,168 @@
                 rotateTexture(texture, 90)
               ];
               createTiles(loadedTileTextures);
-              renderer.render(scene, camera);
             } else {
               texture.image.onload = function() {
                 loadedTileTextures = [
                   texture,
-                  rotateTexture(texture, 45),
+                  rotateTexture(texture, 0),
                   rotateTexture(texture, 0),
                   rotateTexture(texture, 0)
                 ];
                 createTiles(loadedTileTextures);
-                renderer.render(scene, camera);
               };
             }
           } else {
             loadedTileTextures = texture;
             createTiles(texture);
-            renderer.render(scene, camera);
           }
         });
       }
 
       // Grout space input
-      const groutInput = document.getElementById('grout-space');
-      groutInput.addEventListener('input', function() {
-        groutSpace = parseFloat(this.value) || 0;
-        if (loadedTileTextures) {
-          createTiles(loadedTileTextures);
-        }
+      document.getElementById('grout-space').addEventListener('change', function() {
+        GROUT_SPACE = parseFloat(this.value) || 0;
+        if (loadedTileTextures) createTiles(loadedTileTextures);
       });
 
       // Download JPEG button
-      document.getElementById('download-jpeg').addEventListener('click', function() {
-        // Render to a higher resolution for download
-        const exportWidth = 1920;
-        const exportHeight = 1080;
+      document.getElementById('download-jpeg').onclick = function() {
+        const exportWidth = IMAGE_WIDTH, exportHeight = IMAGE_LENGTH;
         const originalSize = renderer.getSize(new THREE.Vector2());
         const originalPixelRatio = renderer.getPixelRatio();
 
-        renderer.setPixelRatio(2); // Super-sample for better quality
+        // Render Three.js scene to an offscreen canvas
+        renderer.setPixelRatio(1);
         renderer.setSize(exportWidth, exportHeight, false);
         camera.aspect = exportWidth / exportHeight;
         camera.updateProjectionMatrix();
         renderer.render(scene, camera);
 
+        // Create a new canvas to combine scene + thumbnail
+        const exportCanvas = document.createElement('canvas');
+        exportCanvas.width = exportWidth;
+        exportCanvas.height = exportHeight;
+        const ctx = exportCanvas.getContext('2d');
+
+        // Draw the rendered scene
+        ctx.drawImage(renderer.domElement, 0, 0, exportWidth, exportHeight);
+
+        // Draw the thumbnail if present
+        const thumb = document.getElementById('tile-thumbnail');
+        const thumbLabel = document.getElementById('tile-thumbnail-label');
+        if (thumb && thumb.src && thumb.src.startsWith('data:') === false && thumb.style.display !== 'none') {
+          // Calculate thumbnail position/size relative to export canvas
+          // Use the same margins/padding as in the config
+          const scaleX = exportWidth / originalSize.x;
+          const scaleY = exportHeight / originalSize.y;
+          const scale = Math.min(scaleX, scaleY);
+
+          // Use the same values as in the config
+          const THUMB_MARGIN_LEFT = 50;
+          const THUMB_MARGIN_BOTTOM = 10;
+          const THUMB_PADDING = 20;
+          const THUMB_SIZE = 150;
+
+          // Calculate positions and sizes
+          const thumbW = THUMB_SIZE + 2 * THUMB_PADDING;
+          const thumbH = THUMB_SIZE + 2 * THUMB_PADDING;
+          const thumbX = THUMB_MARGIN_LEFT * scale;
+          const thumbY = exportHeight - (THUMB_MARGIN_BOTTOM * scale) - thumbH;
+
+          // Draw thumbnail background (white, rounded top corners)
+          ctx.save();
+          ctx.beginPath();
+          const radius = 2 * scale;
+          ctx.moveTo(thumbX, thumbY + radius);
+          ctx.arcTo(thumbX, thumbY, thumbX + thumbW, thumbY, radius);
+          ctx.arcTo(thumbX + thumbW, thumbY, thumbX + thumbW, thumbY + radius, radius);
+          ctx.lineTo(thumbX + thumbW, thumbY + thumbH);
+          ctx.lineTo(thumbX, thumbY + thumbH);
+          ctx.closePath();
+          ctx.fillStyle = '#fff';
+          ctx.shadowColor = 'rgba(0,0,0,0.18)';
+          ctx.shadowBlur = 8 * scale;
+          ctx.fill();
+          ctx.restore();
+
+          // Draw thumbnail image
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(thumbX + THUMB_PADDING * scale, thumbY + THUMB_PADDING * scale, THUMB_SIZE * scale, THUMB_SIZE * scale);
+          ctx.clip();
+          ctx.drawImage(
+            thumb,
+            thumbX + THUMB_PADDING * scale,
+            thumbY + THUMB_PADDING * scale,
+            THUMB_SIZE * scale,
+            THUMB_SIZE * scale
+          );
+          ctx.restore();
+
+          // Draw label background (white, rounded bottom corners)
+          const labelH = 32 * scale;
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(thumbX, thumbY + thumbH);
+          ctx.lineTo(thumbX + thumbW, thumbY + thumbH);
+          ctx.arcTo(thumbX + thumbW, thumbY + thumbH + labelH, thumbX + thumbW - radius, thumbY + thumbH + labelH, radius);
+          ctx.lineTo(thumbX + radius, thumbY + thumbH + labelH);
+          ctx.arcTo(thumbX, thumbY + thumbH + labelH, thumbX, thumbY + thumbH, radius);
+          ctx.closePath();
+          ctx.fillStyle = '#fff';
+          ctx.fill();
+          ctx.restore();
+
+          // Draw label text (centered)
+          ctx.save();
+          ctx.font = `bold ${18 * scale}px sans-serif`;
+          ctx.fillStyle = '#222';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const labelText = thumbLabel.textContent || '';
+          ctx.fillText(
+            labelText,
+            thumbX + thumbW / 2,
+            thumbY + thumbH + labelH / 2
+          );
+          ctx.restore();
+        }
+
+        // Download the combined image
+        const model = models[selectedModelIdx];
+        const modelName = model.file.replace(/\.[^/.]+$/, '');
+
         const link = document.createElement('a');
-        link.download = 'tiles-visualizer.jpg';
-        link.href = renderer.domElement.toDataURL('image/jpeg', 0.95); // Higher quality JPEG
+        link.download = modelName + '.jpg';
+        link.href = exportCanvas.toDataURL('image/jpeg', 0.95);
         link.click();
 
-        // Restore original renderer size and pixel ratio
+        // Restore renderer
         renderer.setPixelRatio(originalPixelRatio);
         renderer.setSize(originalSize.x, originalSize.y, false);
         camera.aspect = 16 / 9;
         camera.updateProjectionMatrix();
-      });
+      };
 
-      // Camera angle select
+      // Camera angle controls
       const cameraAngleSelect = document.getElementById('camera-angle-select');
       const cameraAngleSlider = document.getElementById('camera-angle-slider');
       const cameraAngleValue = document.getElementById('camera-angle-value');
 
-      cameraAngleSelect.addEventListener('change', (event) => {
-        CAMERA_ANGLE = parseFloat(event.target.value);
+      function updateCameraAngle(angle) {
+        CAMERA_ANGLE = angle;
         setCameraAngle(CAMERA_ANGLE);
         cameraAngleSlider.value = CAMERA_ANGLE;
         cameraAngleValue.textContent = CAMERA_ANGLE + '°';
-      });
+        cameraAngleSelect.value = (CAMERA_ANGLE === 0 || CAMERA_ANGLE === 90) ? CAMERA_ANGLE : "";
+      }
 
-      cameraAngleSlider.addEventListener('input', (event) => {
-        CAMERA_ANGLE = parseFloat(event.target.value);
-        setCameraAngle(CAMERA_ANGLE);
-        cameraAngleValue.textContent = CAMERA_ANGLE + '°';
-        if (CAMERA_ANGLE === 15) cameraAngleSelect.value = "15";
-        else if (CAMERA_ANGLE === 90) cameraAngleSelect.value = "90";
-        else cameraAngleSelect.value = "";
-      });
+      cameraAngleSelect.onchange = (event) => updateCameraAngle(+event.target.value);
+      cameraAngleSlider.oninput = (event) => updateCameraAngle(+event.target.value);
 
       cameraAngleValue.textContent = CAMERA_ANGLE + '°';
 
       // Wall and lights
-      const wallGeo = new THREE.PlaneGeometry(ROOM_WIDTH, ROOM_HEIGHT);
-      const wall = new THREE.Mesh(wallGeo, whiteMat);
-      wall.position.z = -ROOM_DEPTH / 2;
-      wall.position.y = ROOM_HEIGHT / 2;
-      scene.add(wall);
-
       scene.add(new THREE.AmbientLight(0xffffff, 0.35));
       const dirLight = new THREE.DirectionalLight(0xffffff, 0.45);
       dirLight.position.set(2, 8, 6);
@@ -365,9 +497,10 @@
         camera.aspect = 16 / 9;
         camera.updateProjectionMatrix();
         renderer.setSize(width, height);
-        renderer.setPixelRatio(window.devicePixelRatio); // Keep quality on resize
+        renderer.setPixelRatio(window.devicePixelRatio);
         renderer.domElement.style.display = 'block';
         renderer.domElement.style.margin = 'auto';
+        updateThumbnailStyle();
       });
 
       camera.aspect = 16 / 9;
@@ -377,7 +510,6 @@
         renderer.render(scene, camera);
       });
 
-      // Start
       fetchModels();
     });
   </script>
