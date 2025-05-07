@@ -38,7 +38,7 @@ if args.out:
         output_pdf += '.pdf'
 else:
     timestamp = time.strftime("%Y%m%d_%H%M%S")
-    output_pdf = f"out/product_catalog_{timestamp}.pdf"
+    output_pdf = f"out/simple_catalog_{timestamp}.pdf"
 
 images_per_row = args.cols
 rows_per_page = args.rows
