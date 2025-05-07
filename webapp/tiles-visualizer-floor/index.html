@@ -40,13 +40,11 @@
         margin: 10px auto 0 auto;
         display: block;
       }
-
-      
     </style>
   </head>
   <body class="bg-dark text-light">
     <div id="form-container" class="container my-4">
-      <div class="d-flex flex-wrap align-items-end gap-2">
+      <div class="d-flex flex-wrap align-items-start gap-2">
         <!-- Tile Model group -->
         <div class="d-flex flex-column align-items-start">
           <label class="form-label mb-1">Tile Model</label>
@@ -172,30 +170,24 @@
       document.addEventListener("DOMContentLoaded", function () {
         let scene, camera, renderer;
 
-        const ROOM_WIDTH = 19,
-          ROOM_DEPTH = 10,
-          ROOM_HEIGHT = 3;
-        const TILE_WIDTH = 1.2,
-          TILE_LENGTH = 1.2;
-        const TILE_COLS = Math.floor(ROOM_WIDTH / TILE_WIDTH);
-        const TILE_ROWS = Math.floor(ROOM_DEPTH / TILE_LENGTH);
-        const CAMERA_HEIGHT = ROOM_HEIGHT * 1.2,
-          CAMERA_ZOOM = ROOM_DEPTH * 0.25;
-        let CAMERA_ANGLE = 0,
-          GROUT_SPACE = 0.02;
-
-        const IMAGE_WIDTH = 1080,
-          IMAGE_LENGTH = 720;
-
-        let tileMeshes = [],
-          models = [],
-          selectedModelIdx = 0;
-        let loadedTileTextures = null,
-          loadedTileTextureSrc = null;
+        const ROOM_WIDTH = 19, ROOM_DEPTH = 10, ROOM_HEIGHT = 3;
+        const TILE_WIDTH = 1.2, TILE_LENGTH = 1.2;
+        const CAMERA_HEIGHT = ROOM_HEIGHT * 1.2;
+        const CAMERA_ZOOM = ROOM_DEPTH * 0.23;
+        const IMAGE_WIDTH = 1080, IMAGE_LENGTH = 720;
+        let CAMERA_ANGLE = 0, GROUT_SPACE = 0.02;
 
         // --- Thumbnail global config ---
         const THUMB_MARGIN_LEFT = 10; // px, can be changed globally
         const THUMB_MARGIN_BOTTOM = 50; // px, can be changed globally
+
+        const TILE_COLS = Math.floor(ROOM_WIDTH / TILE_WIDTH);
+        const TILE_ROWS = Math.floor(ROOM_DEPTH / TILE_LENGTH);
+
+        let tileMeshes = [], models = [], selectedModelIdx = 0;
+        let loadedTileTextures = null, loadedTileTextureSrc = null;
+
+        
 
         scene = new THREE.Scene();
         scene.background = new THREE.Color(0x181818);

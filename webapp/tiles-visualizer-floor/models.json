@@ -1,52 +1,8 @@
 [
-    {
-        "path": "images/mc/parking/",
-        "file": "14000.jpg",
-        "rotate": true
-    },
-    {
-        "path": "images/mc/parking/",
-        "file": "14001.jpg",
-        "rotate": false
-    },
-    {
-        "path": "images/mc/parking/",
-        "file": "14002.jpg",
-        "rotate": true
-    },
-    {
-        "path": "images/mc/parking/",
-        "file": "14003.jpg",
-        "rotate": false
-    },
-    {
-        "path": "images/mc/parking/",
-        "file": "14100.jpg",
-        "rotate": false
-    },
+    
     {
         "path": "images/mc/parking/",
         "file": "14101.jpg",
-        "rotate": false
-    },
-    {
-        "path": "images/mc/parking/",
-        "file": "14102.jpg",
-        "rotate": false
-    },
-    {
-        "path": "images/mc/parking/",
-        "file": "14103.jpg",
-        "rotate": false
-    },
-    {
-        "path": "images/mc/parking/",
-        "file": "14104.jpg",
-        "rotate": false
-    },
-    {
-        "path": "images/mc/parking/",
-        "file": "14105.jpg",
         "rotate": false
     },
     {
@@ -163,5 +119,50 @@
         "path": "images/mc/parking/",
         "file": "14603.jpg",
         "rotate": true
+    },
+    {
+        "path": "images/mc/parking/",
+        "file": "14000.jpg",
+        "rotate": true
+    },
+    {
+        "path": "images/mc/parking/",
+        "file": "14001.jpg",
+        "rotate": false
+    },
+    {
+        "path": "images/mc/parking/",
+        "file": "14002.jpg",
+        "rotate": true
+    },
+    {
+        "path": "images/mc/parking/",
+        "file": "14003.jpg",
+        "rotate": false
+    },
+    {
+        "path": "images/mc/parking/",
+        "file": "14100.jpg",
+        "rotate": false
+    },
+    {
+        "path": "images/mc/parking/",
+        "file": "14102.jpg",
+        "rotate": false
+    },
+    {
+        "path": "images/mc/parking/",
+        "file": "14103.jpg",
+        "rotate": false
+    },
+    {
+        "path": "images/mc/parking/",
+        "file": "14104.jpg",
+        "rotate": false
+    },
+    {
+        "path": "images/mc/parking/",
+        "file": "14105.jpg",
+        "rotate": false
     }
 ]
