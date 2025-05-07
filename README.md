@@ -22,7 +22,10 @@ pip install Pillow reportlab
 
 ```bash
 $ python simple_catalog.py --img ./images/mcl/parking/
-Product catalog created: out/product_catalog.pdf
+
+or 
+
+$ python simple_catalog.py .\out\visual-parking\ --cols 1 --rows 3 --compress 4
 ```
 
 `make_catalog.py` creates PDF catalogs using a JSON configuration file. Features include:
