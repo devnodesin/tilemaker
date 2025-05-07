@@ -33,7 +33,9 @@ image_dir = args.input_image_path
 
 # Set output PDF path with timestamp if not provided
 if args.out:
-    output_pdf = args.out
+    output_pdf = f"out/{args.out}.pdf"
+    if not output_pdf.lower().endswith('.pdf'):
+        output_pdf += '.pdf'
 else:
     timestamp = time.strftime("%Y%m%d_%H%M%S")
     output_pdf = f"out/product_catalog_{timestamp}.pdf"
@@ -69,7 +71,7 @@ temp_files = []  # Track temporary files for cleanup
 
 # Set image quality based on compress argument
 if args.compress:
-    image_quality = 50  # Lower quality for smaller file size
+    image_quality = 25  # Lower quality for smaller file size
 else:
     image_quality = 85  # Default quality
 
